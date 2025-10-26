@@ -9,6 +9,7 @@ import { APIHandler } from "@/lib/APIHandler";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import WelcomeGuard from "../components/WelcomeGuard";
 
 export const metadata: Metadata = {
 	title: {
@@ -21,7 +22,6 @@ export const metadata: Metadata = {
 		url: "https://github.com/gawgua"
 	},
 	keywords: ["VNU", "Dashboard", "Student", "University", "Vietnam"],
-
 };
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
@@ -40,18 +40,20 @@ export default async function Layout({ children }: { children: React.ReactNode }
 	return (
 		<html lang="vi">
 			<body>
-				<div className="min-h-screen bg-background">
-					<SidebarProvider>
-						<ConditionalSideBar isSignIn={isSignedIn} username={username ? username : ""} />
-						<main className="flex justify-center items-center w-full min-h-screen overflow-y-auto">
-							<Suspense fallback={<Loading />}>
-								{children}
-							</Suspense>
-						</main>
-					</SidebarProvider>
-				</div>
-				<Analytics />
-				<SpeedInsights />
+				<WelcomeGuard>
+					<div className="min-h-screen bg-background">
+						<SidebarProvider>
+							<ConditionalSideBar isSignIn={isSignedIn} username={username ? username : ""} />
+							<main className="flex justify-center items-center w-full min-h-screen overflow-y-auto">
+								<Suspense fallback={<Loading />}>
+									{children}
+								</Suspense>
+							</main>
+						</SidebarProvider>
+					</div>
+					<Analytics />
+					<SpeedInsights />
+				</WelcomeGuard>
 			</body>
 		</html>
 	);

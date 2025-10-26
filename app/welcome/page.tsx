@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function WelcomePage() {
@@ -7,14 +7,6 @@ export default function WelcomePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (localStorage.getItem("vnu-dashboard-auth") === "ok") {
-        router.replace("/login");
-      }
-    }
-  }, [router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
