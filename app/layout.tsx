@@ -2,10 +2,8 @@ import "@/app/globals.css";
 
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { cookies } from "next/headers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalSideBar from "./components/ConditionalSideBar";
-import { APIHandler } from "@/lib/APIHandler";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -24,26 +22,22 @@ export const metadata: Metadata = {
 	keywords: ["VNU", "Dashboard", "Student", "University", "Vietnam"],
 };
 
-export default async function Layout({ children }: { children: React.ReactNode }) {
-	const token = (await cookies()).get("accessToken")?.value;
-	const refreshToken = (await cookies()).get("refreshToken")?.value;
-	let isSignedIn = false;
-	let username = "";
-	if (token) {
-		isSignedIn = true;
+function ClientSideBarWrapper({ children }: { children: React.ReactNode }) {
+	// Lấy trạng thái đăng nhập và username ở client
+	// Có thể dùng context hoặc localStorage/cookie ở đây nếu cần
+	return <>{children}</>;
+}
 
-		const apiHandler = new APIHandler(token, refreshToken);
-		const info = await apiHandler.getInfoSinhVien();
-		username = info.hoVaTen;
-	}
-	
+export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="vi">
 			<body>
 				<WelcomeGuard>
 					<div className="min-h-screen bg-background">
 						<SidebarProvider>
-							<ConditionalSideBar isSignIn={isSignedIn} username={username ? username : ""} />
+							<ClientSideBarWrapper>
+								<ConditionalSideBar isSignIn={false} username="" />
+							</ClientSideBarWrapper>
 							<main className="flex justify-center items-center w-full min-h-screen overflow-y-auto">
 								<Suspense fallback={<Loading />}>
 									{children}

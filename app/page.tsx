@@ -1,10 +1,12 @@
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import HomeContent from "./homeContent";
 
 export default async function Page() {
-  return (
-    <ProtectedRoute>
-      <HomeContent />
-    </ProtectedRoute>
-  );
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+  if (!accessToken) {
+    redirect("/welcome");
+  }
+  return <HomeContent />;
 }
