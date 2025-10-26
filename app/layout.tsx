@@ -1,0 +1,58 @@
+import "@/app/globals.css";
+
+import { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { cookies } from "next/headers";
+import ConditionalSideBar from "./components/ConditionalSideBar";
+import { APIHandler } from "@/lib/APIHandler";
+import { Suspense } from "react";
+import Loading from "./loading";
+import { SidebarProvider } from "@/components/ui/sidebar";
+
+export const metadata: Metadata = {
+	title: {
+		default: "VNU Dashboard",
+		template: "%s | VNU Dashboard"
+	},
+	description: "A general dashboard for VNU students",
+	authors: {
+		name: "nguen",
+		url: "https://github.com/gawgua"
+	},
+	keywords: ["VNU", "Dashboard", "Student", "University", "Vietnam"],
+
+};
+
+export default async function Layout({ children }: { children: React.ReactNode }) {
+	const token = (await cookies()).get("accessToken")?.value;
+	const refreshToken = (await cookies()).get("refreshToken")?.value;
+	let isSignedIn = false;
+	let username = "";
+	if (token) {
+		isSignedIn = true;
+
+		const apiHandler = new APIHandler(token, refreshToken);
+		const info = await apiHandler.getInfoSinhVien();
+		username = info.hoVaTen;
+	}
+	
+	return (
+		<html lang="vi">
+			<body>
+				<div className="min-h-screen bg-background">
+					<SidebarProvider>
+						<ConditionalSideBar isSignIn={isSignedIn} username={username ? username : ""} />
+						<main className="flex justify-center items-center w-full min-h-screen overflow-y-auto">
+							<Suspense fallback={<Loading />}>
+								{children}
+							</Suspense>
+						</main>
+					</SidebarProvider>
+				</div>
+				<Analytics />
+				<SpeedInsights />
+			</body>
+		</html>
+	);
+}
