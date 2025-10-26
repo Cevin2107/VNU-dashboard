@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const router = useRouter();
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if (localStorage.getItem("vnu-dashboard-auth") !== "ok") {
+      if (sessionStorage.getItem("vnu-dashboard-auth") !== "ok") {
         router.replace("/welcome");
       }
     }

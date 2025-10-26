@@ -15,7 +15,7 @@ export default function WelcomePage() {
     setTimeout(() => {
       setLoading(false);
       if (password === "Anhquan210706") {
-        localStorage.setItem("vnu-dashboard-auth", "ok");
+        sessionStorage.setItem("vnu-dashboard-auth", "ok");
         router.push("/login");
       } else {
         setError("Mật khẩu không đúng!");

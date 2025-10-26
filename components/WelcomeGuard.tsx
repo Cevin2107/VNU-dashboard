@@ -9,7 +9,7 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const hasAuth = localStorage.getItem("vnu-dashboard-auth") === "ok";
+      const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
       
       // Nếu chưa có auth và không phải đang ở trang welcome
       if (!hasAuth && pathname !== "/welcome") {
