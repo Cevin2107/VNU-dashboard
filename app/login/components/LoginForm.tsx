@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -19,13 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BadgeInfo } from "lucide-react";
 import PasswordInput from "./PasswordInput";
-import { useRouter } from "next/navigation";
 import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
 export default function LoginForm() {
 	const [error, setError] = useState<string | null>(null);
 	const [isPending, setIsPending] = useState(false);
-	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -55,12 +53,11 @@ export default function LoginForm() {
 			// Dispatch custom event to notify other components
 			window.dispatchEvent(new CustomEvent('authStateChanged'));
 
-			// Redirect về trang chủ
-			router.push("/");
+			// KHÔNG redirect ở đây - để WelcomeGuard xử lý
+			// WelcomeGuard sẽ tự động redirect về "/" khi phát hiện đã đăng nhập
 		} catch (err) {
 			console.error("Login failed:", err);
 			setError("Sai tài khoản hoặc mật khẩu");
-		} finally {
 			setIsPending(false);
 		}
 	};
