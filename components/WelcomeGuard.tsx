@@ -13,46 +13,63 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
         const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
         const hasAccessToken = sessionStorage.getItem("accessToken") !== null;
         const hasWelcomePassed = sessionStorage.getItem("welcome-passed") === "ok";
-        const isAuthenticated = hasAuth || hasAccessToken;
+        const isAuthenticated = hasAuth && hasAccessToken;
         
-        console.log("WelcomeGuard - pathname:", pathname, "hasAuth:", hasAuth, "hasAccessToken:", hasAccessToken, "hasWelcomePassed:", hasWelcomePassed, "isAuthenticated:", isAuthenticated);
+        console.log("WelcomeGuard check:", {
+          pathname,
+          hasAuth,
+          hasAccessToken,
+          hasWelcomePassed,
+          isAuthenticated
+        });
         
-        // Logic redirect rõ ràng
-        if (!isAuthenticated) {
-          // Chưa đăng nhập - chỉ cho phép ở welcome và login (nếu đã pass welcome)
-          if (pathname === "/login" && !hasWelcomePassed) {
-            console.log("Trying to access login without passing welcome, redirecting to welcome");
-            router.replace("/welcome");
-          } else if (pathname !== "/welcome" && pathname !== "/login") {
-            console.log("Not authenticated, redirecting to welcome");
-            router.replace("/welcome");
+        // Tránh redirect loop - chỉ redirect 1 lần
+        if (isChecking) {
+          // Logic redirect đơn giản và rõ ràng
+          if (isAuthenticated) {
+            // Đã đăng nhập - không cho ở welcome/login
+            if (pathname === "/welcome" || pathname === "/login") {
+              console.log("Authenticated, redirecting to home from", pathname);
+              router.replace("/");
+            }
+          } else {
+            // Chưa đăng nhập
+            if (pathname === "/login") {
+              // Muốn vào login - phải pass welcome trước
+              if (!hasWelcomePassed) {
+                console.log("Need to pass welcome first");
+                router.replace("/welcome");
+              }
+            } else if (pathname !== "/welcome") {
+              // Muốn vào trang khác - phải đăng nhập
+              console.log("Not authenticated, redirecting to welcome from", pathname);
+              router.replace("/welcome");
+            }
           }
-        } else {
-          // Đã đăng nhập - không cho phép ở welcome và login
-          if (pathname === "/welcome" || pathname === "/login") {
-            console.log("Authenticated but on welcome/login, redirecting to home");
-            router.replace("/");
-          }
+          
+          setIsChecking(false);
         }
       };
 
       checkAuth();
-      setIsChecking(false);
 
-      // Listen for storage changes (when tokens are cleared)
-      const handleStorageChange = () => {
-        checkAuth();
+      // Listen for auth changes
+      const handleAuthChange = () => {
+        console.log("Auth state changed, rechecking...");
+        setIsChecking(true);
       };
 
-      window.addEventListener('storage', handleStorageChange);
+      window.addEventListener('storage', handleAuthChange);
+      window.addEventListener('authStateChanged', handleAuthChange);
       
       return () => {
-        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('storage', handleAuthChange);
+        window.removeEventListener('authStateChanged', handleAuthChange);
       };
     }
-  }, [pathname, router]);
+  }, [pathname, router, isChecking]);
 
-  // Hiển thị loading trong khi đang kiểm tra
+  // Hiển thị loading hoặc trống trong khi đang kiểm tra
   if (isChecking) {
     return null;
   }
