@@ -1,4 +1,6 @@
-import { APIHandler, withAuth } from "@/lib/APIHandler";
+"use client";
+import { useEffect, useState } from "react";
+import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 import Image, { StaticImageData } from "next/image";
 import { donVi, nganhDaoTao } from "@/lib/constants";
 import GPAChart from "./components/GPAChart";
@@ -6,6 +8,7 @@ import SubjectScoreChart from "./components/SubjectScoreChart";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SubjectScore } from "@/types/SubjectTypes";
+import { useRouter } from "next/navigation";
 
 import HSB from "@/public/hsb.png";
 import HUS from "@/public/hus.png";
@@ -35,56 +38,103 @@ const donViLogo: Record<string, StaticImageData> = {
   "f88a778b-0a4d-4a3b-a8fa-d94a6b5ce6f8": HUS
 }
 
-export default async function HomeContent() {
-  const { tongket, gpaTongKet, svInfo, classData, subjectScoreCount } = await withAuth(async (apiHandler: APIHandler) => {
-    const tongket = (await apiHandler.getTongKetDenHienTai())[0];
-    const svInfo = await apiHandler.getInfoSinhVien();
-    const classData = (await apiHandler.getDataLopDaoTao(
-      svInfo.idLopDaoTao,
-      svInfo.guidDonVi,
-      svInfo.idBacDaoTao,
-      svInfo.idHeDaoTao,
-      svInfo.idNganhDaoTao,
-      svInfo.idNienKhoaDaoTao,
-      svInfo.idChuongTrinhDaoTao
-    ))[0];
+interface HomeData {
+  tongket: any;
+  gpaTongKet: any[];
+  svInfo: any;
+  classData: any;
+  subjectScoreCount: Record<SubjectScore, number>;
+}
 
-    const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoDiem();
-    const gpaTongKet: any[] = [];
-    const subjectScoreCount: Record<SubjectScore, number> = {
-      [SubjectScore.A_plus]: 0,
-      [SubjectScore.A]: 0,
-      [SubjectScore.B_plus]: 0,
-      [SubjectScore.B]: 0,
-      [SubjectScore.C_plus]: 0,
-      [SubjectScore.C]: 0,
-      [SubjectScore.D_plus]: 0,
-      [SubjectScore.D]: 0,
-      [SubjectScore.F]: 0
+export default function HomeContent() {
+  const router = useRouter();
+  const [data, setData] = useState<HomeData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Lấy tokens từ sessionStorage
+        const accessToken = sessionStorage.getItem("accessToken");
+        const refreshToken = sessionStorage.getItem("refreshToken");
+
+        if (!accessToken) {
+          console.log("No access token, but WelcomeGuard should handle this");
+          return;
+        }
+
+        const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
+        
+        const tongket = (await apiHandler.getTongKetDenHienTai())[0];
+        const svInfo = await apiHandler.getInfoSinhVien();
+        const classData = (await apiHandler.getDataLopDaoTao(
+          svInfo.idLopDaoTao,
+          svInfo.guidDonVi,
+          svInfo.idBacDaoTao,
+          svInfo.idHeDaoTao,
+          svInfo.idNganhDaoTao,
+          svInfo.idNienKhoaDaoTao,
+          svInfo.idChuongTrinhDaoTao
+        ))[0];
+
+        const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoDiem();
+        const gpaTongKet: any[] = [];
+        const subjectScoreCount: Record<SubjectScore, number> = {
+          [SubjectScore.A_plus]: 0,
+          [SubjectScore.A]: 0,
+          [SubjectScore.B_plus]: 0,
+          [SubjectScore.B]: 0,
+          [SubjectScore.C_plus]: 0,
+          [SubjectScore.C]: 0,
+          [SubjectScore.D_plus]: 0,
+          [SubjectScore.D]: 0,
+          [SubjectScore.F]: 0
+        };
+        
+        for (const hocKy of danhSachHocKy) {
+          const tongket = (await apiHandler.getDiemTrungBinhHocKy(hocKy.id))[0];
+          const diemHocKy = await apiHandler.getDiemThiHocKy(hocKy.id);
+          diemHocKy.forEach((diem) => {
+            subjectScoreCount[diem.diemHeChu] += 1;
+          });
+          gpaTongKet.push({
+            id: hocKy.id,
+            tenHocKy: `Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`,
+            tongket: Number.parseFloat(tongket.diemTrungBinhHe4_HocKy),
+            tichluy: Number.parseFloat(tongket.diemTrungBinhHe4_TichLuyDenHocKyHienTai)
+          });
+        }
+        gpaTongKet.sort((a, b) => Number(a.id) - Number(b.id));
+
+        setData({
+          tongket,
+          svInfo,
+          classData,
+          gpaTongKet,
+          subjectScoreCount
+        });
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Có lỗi xảy ra khi tải dữ liệu");
+        // WelcomeGuard sẽ xử lý redirect nếu cần
+      } finally {
+        setLoading(false);
+      }
     };
-    for (const hocKy of danhSachHocKy) {
-      const tongket = (await apiHandler.getDiemTrungBinhHocKy(hocKy.id))[0];
-      const diemHocKy = await apiHandler.getDiemThiHocKy(hocKy.id);
-      diemHocKy.forEach((diem) => {
-        subjectScoreCount[diem.diemHeChu] += 1;
-      });
-      gpaTongKet.push({
-        id: hocKy.id,
-        tenHocKy: `Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`,
-        tongket: Number.parseFloat(tongket.diemTrungBinhHe4_HocKy),
-        tichluy: Number.parseFloat(tongket.diemTrungBinhHe4_TichLuyDenHocKyHienTai)
-      });
-    }
-    gpaTongKet.sort((a, b) => Number(a.id) - Number(b.id));
 
-    return {
-      tongket,
-      svInfo,
-      classData,
-      gpaTongKet,
-      subjectScoreCount
-    }
-  });
+    fetchData();
+  }, [router]);
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
+
+  if (error || !data) {
+    return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>;
+  }
+
+  const { tongket, gpaTongKet, svInfo, classData, subjectScoreCount } = data;
 
   return (
     <div className="w-full space-y-4 mr-2 mt-2.25 mb-2.25">

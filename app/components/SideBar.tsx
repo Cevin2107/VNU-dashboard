@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import vnuLogo from "@/public/vnu_logo.png";
 import { logoutAction } from "../actions";
+import { useRouter } from "next/navigation";
 
 const routes = [
 	{ href: "/", label: "Trang chủ", icon: House },
@@ -47,6 +48,7 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 	const pathname = usePathname();
 	const { isMobile, open } = useSidebar();
 	const [showAlert, setShowAlert] = useState(false);
+	const router = useRouter();
 
 	const handleLinkClick = (e: React.MouseEvent) => {
 		if (!isSignIn) {
@@ -54,6 +56,26 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 			setShowAlert(true);
 			setTimeout(() => setShowAlert(false), 3000); // Hide alert after 3 seconds
 		}
+	};
+
+	const handleLogout = () => {
+		// Clear sessionStorage
+		sessionStorage.removeItem("accessToken");
+		sessionStorage.removeItem("refreshToken");
+		sessionStorage.removeItem("vnu-dashboard-auth");
+		sessionStorage.removeItem("username");
+		sessionStorage.removeItem("welcome-passed");
+		
+		// Clear cookies
+		document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+		document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+		document.cookie = "remember=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+		
+		// Dispatch custom event to notify other components
+		window.dispatchEvent(new CustomEvent('authStateChanged'));
+		
+		// Redirect to welcome page
+		router.push("/welcome");
 	};
 
 	return (
@@ -135,7 +157,7 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 						<Button
 							variant="outline"
 							className="hover:bg-primary hover:text-white"
-							onClick={() => logoutAction()}
+							onClick={handleLogout}
 						>
 							{open ? "Đăng xuất" : <LogOut />}
 						</Button>

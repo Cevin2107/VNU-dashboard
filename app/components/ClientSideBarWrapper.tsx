@@ -1,0 +1,46 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import ConditionalSideBar from "./ConditionalSideBar";
+
+export default function ClientSideBarWrapper({ children }: { children: React.ReactNode }) {
+	const [isSignIn, setIsSignIn] = useState(false);
+	const [username, setUsername] = useState("");
+
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const updateAuthState = () => {
+				const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
+				const storedUsername = sessionStorage.getItem("username") || "";
+				setIsSignIn(hasAuth);
+				setUsername(storedUsername);
+			};
+
+			updateAuthState();
+
+			// Listen for storage changes and custom auth events
+			const handleStorageChange = () => {
+				updateAuthState();
+			};
+
+			const handleAuthStateChange = () => {
+				updateAuthState();
+			};
+
+			window.addEventListener('storage', handleStorageChange);
+			window.addEventListener('authStateChanged', handleAuthStateChange);
+			
+			return () => {
+				window.removeEventListener('storage', handleStorageChange);
+				window.removeEventListener('authStateChanged', handleAuthStateChange);
+			};
+		}
+	}, []);
+
+	return (
+		<>
+			<ConditionalSideBar isSignIn={isSignIn} username={username} />
+			{children}
+		</>
+	);
+}

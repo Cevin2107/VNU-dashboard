@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { loginAction } from "../actions";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -20,24 +19,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BadgeInfo } from "lucide-react";
 import PasswordInput from "./PasswordInput";
+import { useRouter } from "next/navigation";
+import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
 export default function LoginForm() {
 	const [error, setError] = useState<string | null>(null);
-	const [isPending, startTransition] = useTransition();
+	const [isPending, setIsPending] = useState(false);
+	const router = useRouter();
 
-	const handleSubmit = async (formData: FormData) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
 		setError(null);
-		startTransition(async () => {
-			try {
-				await loginAction(formData);
-			} catch {
-				setError("Sai tài khoản hoặc mật khẩu");
-			}
-		});
+		setIsPending(true);
+
+		try {
+			const formData = new FormData(e.currentTarget);
+			const username = formData.get("username") as string;
+			const password = formData.get("password") as string;
+
+			// Sử dụng ClientAPIHandler để đăng nhập
+			const apiHandler = new ClientAPIHandler();
+			const response = await apiHandler.signin(username, password);
+
+			// Lưu tokens vào sessionStorage và cookies
+			sessionStorage.setItem("accessToken", response.accessToken);
+			sessionStorage.setItem("refreshToken", response.refreshToken);
+			sessionStorage.setItem("vnu-dashboard-auth", "ok");
+			sessionStorage.setItem("username", username);
+
+			// Lưu vào cookies để server-side có thể truy cập
+			document.cookie = `accessToken=${response.accessToken}; path=/; SameSite=Lax`;
+			document.cookie = `refreshToken=${response.refreshToken}; path=/; SameSite=Lax`;
+			document.cookie = `remember=true; path=/; SameSite=Lax`;
+
+			// Dispatch custom event to notify other components
+			window.dispatchEvent(new CustomEvent('authStateChanged'));
+
+			// Redirect về trang chủ
+			router.push("/");
+		} catch (err) {
+			console.error("Login failed:", err);
+			setError("Sai tài khoản hoặc mật khẩu");
+		} finally {
+			setIsPending(false);
+		}
 	};
 
 	return (
-		<form action={handleSubmit} className="w-full">
+		<form onSubmit={handleSubmit} className="w-full">
 			<Card className="min-w-xl max-w-lg mx-auto glass-card animate-fade-in-card">
 				<CardHeader>
 					<CardTitle className="text-center text-2xl font-bold text-black drop-shadow-lg tracking-wide">Đăng nhập sinh viên</CardTitle>

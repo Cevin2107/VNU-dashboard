@@ -9,18 +9,46 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
-      
-      // Nếu chưa có auth và không phải đang ở trang welcome
-      if (!hasAuth && pathname !== "/welcome") {
-        router.replace("/welcome");
-      } 
-      // Nếu đã có auth và đang ở trang welcome
-      else if (hasAuth && pathname === "/welcome") {
-        router.replace("/login");
-      }
-      
+      const checkAuth = () => {
+        const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
+        const hasAccessToken = sessionStorage.getItem("accessToken") !== null;
+        const hasWelcomePassed = sessionStorage.getItem("welcome-passed") === "ok";
+        const isAuthenticated = hasAuth || hasAccessToken;
+        
+        console.log("WelcomeGuard - pathname:", pathname, "hasAuth:", hasAuth, "hasAccessToken:", hasAccessToken, "hasWelcomePassed:", hasWelcomePassed, "isAuthenticated:", isAuthenticated);
+        
+        // Logic redirect rõ ràng
+        if (!isAuthenticated) {
+          // Chưa đăng nhập - chỉ cho phép ở welcome và login (nếu đã pass welcome)
+          if (pathname === "/login" && !hasWelcomePassed) {
+            console.log("Trying to access login without passing welcome, redirecting to welcome");
+            router.replace("/welcome");
+          } else if (pathname !== "/welcome" && pathname !== "/login") {
+            console.log("Not authenticated, redirecting to welcome");
+            router.replace("/welcome");
+          }
+        } else {
+          // Đã đăng nhập - không cho phép ở welcome và login
+          if (pathname === "/welcome" || pathname === "/login") {
+            console.log("Authenticated but on welcome/login, redirecting to home");
+            router.replace("/");
+          }
+        }
+      };
+
+      checkAuth();
       setIsChecking(false);
+
+      // Listen for storage changes (when tokens are cleared)
+      const handleStorageChange = () => {
+        checkAuth();
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+      
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+      };
     }
   }, [pathname, router]);
 
