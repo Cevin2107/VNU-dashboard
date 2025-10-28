@@ -118,41 +118,47 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Disable all transition effects */
-  * {
-    transition: none !important;
-  }
 }
 
-/* Strong overrides to ensure no animations/transitions/scale effects
-   — helps prevent unexpected zoom/scale when navigating or switching tabs. */
+/* CRITICAL: Disable ALL animations, transitions, transforms, and backdrop-filter effects */
 *,
 *::before,
 *::after {
   transition: none !important;
   animation: none !important;
+  transform: none !important;
   will-change: auto !important;
+  transition-property: none !important;
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* Catch Tailwind utility classes that include scale/animate in the classname
-   and neutralize transform/animation. This is intentionally broad — if you
-   want to re-enable specific effects later, scope these rules more narrowly. */
-[class*="scale-"] ,
-[class*="hover:scale-"] ,
-[class*="group-hover:scale-"] ,
-[class*="focus:scale-"] ,
-[class*="active:scale-"] ,
-[class*="peer-hover:scale-"] {
+/* Override any animation/transition classes */
+[class*="animate-"],
+[class*="transition-"],
+[class*="duration-"],
+[class*="ease-"],
+[class*="scale-"],
+[class*="zoom-"],
+[class*="slide-"],
+[class*="fade-"] {
+  animation: none !important;
+  transition: none !important;
   transform: none !important;
 }
 
-[class*="animate-"] {
+/* Specifically target data-state animations (used by Radix UI) */
+[data-state="open"],
+[data-state="closed"] {
   animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
 }
 
-/* Also explicitly disable transition properties that use custom properties */
+/* Disable backdrop-filter effects that cause visual animation */
 * {
-  transition-property: none !important;
-  transition-duration: 0s !important;
-  transition-timing-function: linear !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }

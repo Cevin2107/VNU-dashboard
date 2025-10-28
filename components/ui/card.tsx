@@ -8,7 +8,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="card"
       className={cn(
         // Glassmorphism, no animation/scale
-        "bg-white/30 backdrop-blur-xl border border-white/40 shadow-2xl flex flex-col gap-6 rounded-2xl py-8 px-6 text-card-foreground",
+        "bg-white border border-gray-200 shadow-2xl flex flex-col gap-6 rounded-2xl py-8 px-6 text-card-foreground",
         className
       )}
       {...props}

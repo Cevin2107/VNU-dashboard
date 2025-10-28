@@ -68,14 +68,14 @@ export default function LoginForm() {
 	return (
 		<div>
 			{/* Fullscreen overlay to block the entire app (including sidebar) */}
-			<div className="fixed inset-0 z-[2000] flex items-center justify-center bg-gradient-to-br from-sky-50/60 via-white/30 to-violet-50/60 backdrop-blur-sm overflow-hidden">
+			<div className="fixed inset-0 z-[2000] flex items-center justify-center bg-gradient-to-br from-sky-50/60 via-white/30 to-violet-50/60 overflow-hidden">
 				{/* Decorative blurred shapes */}
 				<div className="absolute -left-16 -top-16 w-64 h-64 bg-gradient-to-br from-indigo-200/30 to-cyan-200/30 rounded-full filter blur-3xl opacity-60" />
 				<div className="absolute -right-16 -bottom-16 w-64 h-64 bg-gradient-to-br from-pink-200/30 to-yellow-200/20 rounded-full filter blur-3xl opacity-50" />
 
 				<div className="relative w-full max-w-lg px-4 py-8">
-					<div className="absolute inset-0 rounded-3xl bg-white/6 backdrop-blur-xl border border-white/20 shadow-2xl -z-10" />
-					<div className="relative bg-white/30 backdrop-blur-3xl border border-white/25 rounded-3xl p-6 shadow-2xl">
+					<div className="absolute inset-0 rounded-3xl bg-white/6 border border-white/20 shadow-2xl -z-10" />
+					<div className="relative bg-white/30 border border-white/25 rounded-3xl p-6 shadow-2xl">
 						{/* Header with Icon */}
 						<div className="text-center mb-6">
 							<div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 mb-4 shadow-lg">
@@ -93,7 +93,7 @@ export default function LoginForm() {
 
 						{/* Alert */}
 						<div className="mb-4">
-							<Alert className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl backdrop-blur-sm">
+							<Alert className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl">
 								<BadgeInfo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
 								<AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
 									Đăng nhập bằng tài khoản OneVNU (idp.vnu.edu.vn)
@@ -114,7 +114,7 @@ export default function LoginForm() {
 										type="text"
 										placeholder="240*****"
 										required
-										className="w-full px-4 py-3 pl-12 rounded-xl bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm border border-white/30 dark:border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+										className="w-full px-4 py-3 pl-12 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
 									/>
 									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 										<svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@ export default function LoginForm() {
 								</Label>
 								<div className="relative">
 									<PasswordInput
-										className="w-full px-4 py-3 pl-12 rounded-xl bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm border border-white/30 dark:border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+										className="w-full px-4 py-3 pl-12 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
 									/>
 									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 										<svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@ export default function LoginForm() {
 
 							<Button
 								type="submit"
-								className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+								className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								<div className="flex items-center justify-center">
 									<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
