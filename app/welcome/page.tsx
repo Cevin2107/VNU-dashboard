@@ -1,4 +1,3 @@
-// Trong này có mật khẩu truy cập trang login
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,8 +16,8 @@ export default function WelcomePage() {
     // Giảm delay để chuyển nhanh hơn
     setTimeout(() => {
       setLoading(false);
-      if (password === "Anhquan210706") { // Mật khẩu truy cập login
-
+      if (password === "Anhquan210706") {
+        // Chỉ set flag để cho phép truy cập trang login, không set auth hoàn toàn
         sessionStorage.setItem("welcome-passed", "ok");
         router.push("/login");
       } else {
@@ -30,53 +29,99 @@ export default function WelcomePage() {
   return (
     <div>
       {/* Fullscreen overlay to block the entire app (including sidebar) */}
-      <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-gradient-to-br from-sky-50/60 via-white/30 to-violet-50/60 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-gradient-to-br from-sky-50/60 via-white/30 to-violet-50/60 backdrop-blur-sm overflow-hidden">
         {/* Decorative blurred shapes */}
-        <div className="absolute -left-20 -top-20 w-80 h-80 bg-gradient-to-br from-indigo-200/30 to-cyan-200/30 rounded-full filter blur-3xl opacity-60" />
-        <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-gradient-to-br from-pink-200/30 to-yellow-200/20 rounded-full filter blur-3xl opacity-50" />
+        <div className="absolute -left-16 -top-16 w-64 h-64 bg-gradient-to-br from-indigo-200/30 to-cyan-200/30 rounded-full filter blur-3xl opacity-60" />
+        <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-gradient-to-br from-pink-200/30 to-yellow-200/20 rounded-full filter blur-3xl opacity-50" />
 
-        <div className="relative w-full max-w-3xl p-6">
+        <div className="relative w-full max-w-lg px-4 py-8">
           <div className="absolute inset-0 rounded-3xl bg-white/6 backdrop-blur-xl border border-white/20 shadow-2xl -z-10" />
-          <div className="relative bg-white/30 backdrop-blur-3xl border border-white/25 rounded-3xl p-10 shadow-2xl">
-            <h1 className="text-4xl font-extrabold tracking-tight text-black text-center">Chào mừng đến với VNU Dashboard</h1>
-            <p className="text-sm text-black/70 text-center mt-2 mb-6">Ứng dụng dành cho sinh viên — nhập mật khẩu để tiếp tục.</p>
+          <div className="relative bg-white/30 backdrop-blur-3xl border border-white/25 rounded-3xl p-6 shadow-2xl">
+            {/* Header with Icon */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 mb-4 shadow-lg">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-3">
+                VNU Dashboard
+              </h1>
+              <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
+                Ứng dụng quản lý dành cho sinh viên VNU
+              </p>
+            </div>
 
-            <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto flex flex-col gap-4">
-              <input
-                id="welcome-password"
-                type="password"
-                placeholder="Nhập mật khẩu..."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoFocus
-                className="w-full px-4 py-3 rounded-lg bg-white/80 text-black border border-black/10 placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-shadow duration-200"
-              />
+            {/* Welcome Content */}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                Chào mừng đến với VNU Dashboard
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                Ứng dụng dành cho sinh viên — nhập mật khẩu để tiếp tục trải nghiệm
+              </p>
+            </div>
 
-              {error && <div className="text-red-600 text-center text-sm animate-shake">{error}</div>}
+            {/* Password Form */}
+            <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto">
+              <div>
+                <label htmlFor="welcome-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Mật khẩu truy cập
+                </label>
+                <div className="relative">
+                  <input
+                    id="welcome-password"
+                    type="password"
+                    placeholder="Nhập mật khẩu..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoFocus
+                    className="w-full px-4 py-3 pl-12 rounded-xl bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm border border-white/30 dark:border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    required
+                    disabled={loading}
+                  />
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-xl p-3">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-red-700 dark:text-red-300 text-sm font-medium">{error}</p>
+                  </div>
+                </div>
+              )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 inline-flex items-center justify-center gap-2 w-full rounded-lg py-3 bg-gradient-to-r from-indigo-500 to-cyan-400 text-black font-semibold shadow-md hover:scale-[1.02] transition-transform duration-200 disabled:opacity-60"
+                className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {loading ? "Đang kiểm tra..." : "Tiếp tục"}
+                <div className="flex items-center justify-center">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  Tiếp tục
+                </div>
               </button>
             </form>
 
-            <div className="mt-6 text-xs text-black/60 text-center">Liên hệ admin nếu bạn gặp vấn đề đăng nhập.</div>
+            {/* Footer */}
+            <div className="mt-6 pt-4 border-t border-white/20 dark:border-gray-700/30">
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                Liên hệ admin nếu bạn gặp vấn đề đăng nhập
+              </p>
+            </div>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes shake {
-          10%, 90% { transform: translateX(-2px); }
-          20%, 80% { transform: translateX(4px); }
-          30%, 50%, 70% { transform: translateX(-8px); }
-          40%, 60% { transform: translateX(8px); }
-        }
-        .animate-shake { animation: shake 0.45s; }
-      `}</style>
     </div>
   );
 }

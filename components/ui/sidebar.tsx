@@ -248,7 +248,7 @@ function Sidebar({
           data-slot="sidebar-inner"
           className={cn(
             // Glassmorphism for sidebar inner
-            "bg-white/40 backdrop-blur-2xl border border-white/30 shadow-xl flex h-full w-full flex-col rounded-2xl m-2 animate-fade-in-sidebar",
+            "bg-white/40 backdrop-blur-2xl border border-white/30 shadow-xl flex h-full w-full flex-col rounded-2xl m-2",
             "group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:border group-data-[variant=floating]:shadow-2xl"
           )}
         >

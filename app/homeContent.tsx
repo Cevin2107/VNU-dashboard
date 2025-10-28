@@ -65,7 +65,7 @@ export default function HomeContent() {
         }
 
         const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
-        
+
         const tongket = (await apiHandler.getTongKetDenHienTai())[0];
         const svInfo = await apiHandler.getInfoSinhVien();
         const classData = (await apiHandler.getDataLopDaoTao(
@@ -91,7 +91,7 @@ export default function HomeContent() {
           [SubjectScore.D]: 0,
           [SubjectScore.F]: 0
         };
-        
+
         for (const hocKy of danhSachHocKy) {
           const tongket = (await apiHandler.getDiemTrungBinhHocKy(hocKy.id))[0];
           const diemHocKy = await apiHandler.getDiemThiHocKy(hocKy.id);
@@ -127,46 +127,131 @@ export default function HomeContent() {
   }, [router]);
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return <div className="w-full space-y-2 mr-2 mt-2 mb-2"></div>;
   }
 
   if (error || !data) {
-    return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
+          <div className="text-center">
+            <div className="text-red-400 text-6xl mb-4">⚠️</div>
+            <h2 className="text-red-700 dark:text-red-300 text-xl font-semibold mb-2">Có lỗi xảy ra</h2>
+            <p className="text-red-600 dark:text-red-400">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const { tongket, gpaTongKet, svInfo, classData, subjectScoreCount } = data;
 
   return (
-    <div className="w-full space-y-4 mr-2 mt-2.25 mb-2.25">
-      <Card className="gap-3">
-        <CardHeader className="text-xl font-bold">Thông tin người học</CardHeader>
-        <CardContent className="flex items-start justify-between">
-          <div className="space-y-1 flex-grow">
-            <div><span className="font-bold">Họ tên:</span> {svInfo.hoVaTen}</div>
-            <div><span className="font-bold">Đơn vị:</span> {donVi.find((dv) => dv.guid === svInfo.guidDonVi)!.tenDonVi}</div>
-            <div><span className="font-bold">Ngành học:</span> {nganhDaoTao.find((ndt) => ndt.id === svInfo.idNganhDaoTao && ndt.guidDonVi === svInfo.guidDonVi)!.ten}</div>
+  <div className="w-full space-y-2 mr-2 mt-2 mb-2">
+      {/* Welcome Header */}
+      <div className="text-center mb-2">
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1 tracking-tight">
+          Xin chào, {svInfo.hoVaTen.split(' ').pop()}! 👋
+        </h1>
+        <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">Chúc bạn một ngày tốt lành</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="flex flex-col md:flex-row gap-3 mb-2">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl p-2 md:p-3 shadow-xl border border-white/20 dark:border-gray-700/30 flex-1">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
             <div>
-              <span className="font-bold">Lớp khóa học: </span>
-              {classData.ten} {classData.ten != classData.tenVietTat && <>({classData.tenVietTat})</>}
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Số kỳ đã học</p>
+              <p className="text-gray-900 dark:text-gray-100 text-2xl md:text-3xl font-bold">{tongket.soKyDaHoc}</p>
             </div>
           </div>
-          <Image src={donViLogo[svInfo.guidDonVi]} width={110} height={110} alt="Logo" className="flex-shrink-0"/>
-        </CardContent>
-      </Card>
-      <Card className="bg-primary text-white font-semibold p-1.5 border-0">
-        <CardContent className="flex items-center justify-center space-x-20">
-          <div>Số kỳ đã học: {tongket.soKyDaHoc}</div>
-          <Separator orientation="vertical" className="min-h-10" />
-          <div>Điểm trung bình tích lũy: {tongket.diemTrungBinhHe4TichLuy}</div>
-          <Separator orientation="vertical" className="min-h-10"/>
-          <div>Tín chỉ tích lũy: {tongket.tongSoTinChiTichLuy}</div>
-        </CardContent>
-      </Card>
-      <div className="flex gap-3">
-        <div className="flex-1 min-w-0">
+        </div>
+
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl p-2 md:p-3 shadow-xl border border-white/20 dark:border-gray-700/30 flex-1">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+              <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Điểm TB tích lũy</p>
+              <p className="text-gray-900 dark:text-gray-100 text-xl md:text-2xl font-bold">{tongket.diemTrungBinhHe4TichLuy}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl p-2 md:p-3 shadow-xl border border-white/20 dark:border-gray-700/30 flex-1">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+              <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Tín chỉ tích lũy</p>
+              <p className="text-gray-900 dark:text-gray-100 text-xl md:text-2xl font-bold">{tongket.tongSoTinChiTichLuy}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Student Info Card */}
+      <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl p-2 md:p-3 shadow-xl border border-white/20 dark:border-gray-700/30 mb-2">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">Thông tin sinh viên</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Họ và tên</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">{svInfo.hoVaTen}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Đơn vị</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">{donVi.find((dv) => dv.guid === svInfo.guidDonVi)?.tenDonVi}</p>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Ngành học</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">{nganhDaoTao.find((ndt) => ndt.id === svInfo.idNganhDaoTao && ndt.guidDonVi === svInfo.guidDonVi)?.ten}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Lớp khóa học</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">{classData.ten} {classData.ten !== classData.tenVietTat && `(${classData.tenVietTat})`}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="ml-3">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-white/70 dark:bg-gray-700/70 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30 dark:border-gray-600/30 shadow-lg">
+              <Image
+                src={donViLogo[svInfo.guidDonVi]}
+                width={40}
+                height={40}
+                alt="Logo"
+                className="rounded-xl"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <div className="flex flex-col lg:flex-row gap-3">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl p-2 md:p-3 shadow-xl border border-white/20 dark:border-gray-700/30 flex-1">
+          <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">Điểm GPA theo học kỳ</h3>
           <GPAChart data={gpaTongKet} />
         </div>
-        <div className="flex-1 min-w-0">
+
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl p-2 md:p-3 shadow-xl border border-white/20 dark:border-gray-700/30 flex-1">
+          <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">Thống kê điểm môn học</h3>
           <SubjectScoreChart data={subjectScoreCount} />
         </div>
       </div>

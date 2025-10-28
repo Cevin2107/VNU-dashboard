@@ -3,12 +3,16 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function WelcomeGuard({ children }: { children: React.ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || typeof window === "undefined") return;
 
     const checkAuth = () => {
       try {
@@ -18,13 +22,13 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
         const isAuthenticated = hasAuth && hasAccessToken;
 
         // Chỉ log cho các trang cần check
-        if (pathname === "/welcome" || pathname === "/login") {
-          console.log("WelcomeGuard:", { pathname, isAuthenticated, hasWelcomePassed });
+        if (pathname === "/welcome" || pathname === "/login" || pathname === "/dashboard") {
+          console.log("WelcomeGuard:", { pathname, isAuthenticated, hasWelcomePassed, hasAuth, hasAccessToken });
         }
 
         if (isAuthenticated) {
           // Đã đăng nhập - redirect về home nếu đang ở welcome/login
-          if (pathname === "/welcome" || pathname === "/login") {
+          if (pathname === "/welcome") {
             router.replace("/dashboard");
             return;
           }
@@ -41,8 +45,6 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
         }
       } catch (error) {
         console.error("WelcomeGuard error:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -60,8 +62,12 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
     if (typeof window === "undefined") return;
 
     const handleAuthChange = () => {
-      console.log("Auth state changed, reloading page");
-      window.location.reload();
+      console.log("Auth state changed, checking auth...");
+      // Check auth immediately
+      const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
+      const hasAccessToken = sessionStorage.getItem("accessToken") !== null;
+      console.log("Auth check after change:", { hasAuth, hasAccessToken });
+      // window.location.reload();
     };
 
     window.addEventListener('storage', handleAuthChange);
@@ -72,15 +78,6 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
       window.removeEventListener('authStateChanged', handleAuthChange);
     };
   }, []);
-
-  // Hiển thị loading spinner nhỏ trong khi check
-  if (isLoading && (pathname === "/welcome" || pathname === "/login")) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
   return <>{children}</>;
 }

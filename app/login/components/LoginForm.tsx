@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -22,21 +23,24 @@ import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
 export default function LoginForm() {
 	const [error, setError] = useState<string | null>(null);
-	const [isPending, setIsPending] = useState(false);
+	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
-		setIsPending(true);
 
 		try {
 			const formData = new FormData(e.currentTarget);
 			const username = formData.get("username") as string;
 			const password = formData.get("password") as string;
 
+			console.log("Login attempt:", { username, password: password ? "***" : "" });
+
 			// Sử dụng ClientAPIHandler để đăng nhập
 			const apiHandler = new ClientAPIHandler();
 			const response = await apiHandler.signin(username, password);
+
+			console.log("Signin result:", response);
 
 			// Lưu tokens vào sessionStorage và cookies
 			sessionStorage.setItem("accessToken", response.accessToken);
@@ -49,114 +53,126 @@ export default function LoginForm() {
 			document.cookie = `refreshToken=${response.refreshToken}; path=/; SameSite=Lax`;
 
 			// Dispatch custom event to notify other components
-			window.dispatchEvent(new CustomEvent('authStateChanged'));
+			setTimeout(() => {
+				window.dispatchEvent(new CustomEvent('authStateChanged'));
+			}, 100);
 
 			// Redirect về trang chủ sau khi đăng nhập thành công
-			window.location.href = "/dashboard";
+			router.push("/dashboard");
 		} catch (err) {
 			console.error("Login failed:", err);
 			setError("Sai tài khoản hoặc mật khẩu");
-			setIsPending(false);
 		}
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full">
-			<Card className="min-w-xl max-w-lg mx-auto glass-card animate-fade-in-card">
-				<CardHeader>
-					<CardTitle className="text-center text-2xl font-bold text-black drop-shadow-lg tracking-wide">Đăng nhập sinh viên</CardTitle>
-					<CardDescription>
-						<Alert className="mt-2 w-full bg-gradient-to-r from-yellow-200/60 to-pink-200/60 border-0 shadow-md backdrop-blur-xl">
-							<BadgeInfo color="#ffb900" strokeWidth={2.5} />
-							<AlertDescription className="text-amber-500 font-medium">
-								Đăng nhập bằng tài khoản OneVNU (idp.vnu.edu.vn) của bạn.<br />
-								<span className="text-xs text-gray-700">Hệ thống không lưu lại thông tin đăng nhập.</span>
-							</AlertDescription>
-						</Alert>
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<div className="flex flex-col gap-6">
-						<div className="grid gap-2">
-							<Label htmlFor="username" className="text-black/90">Mã sinh viên</Label>
-							<Input
-								name="username"
-								id="username"
-								type="text"
-								placeholder="240*****"
-								required
-								disabled={isPending}
-								className="glass-input"
-							/>
-						</div>
-						<div className="grid gap-2">
-							<div className="flex items-center">
-								<Label htmlFor="password" className="text-black/90">Mật khẩu</Label>
+		<div>
+			{/* Fullscreen overlay to block the entire app (including sidebar) */}
+			<div className="fixed inset-0 z-[2000] flex items-center justify-center bg-gradient-to-br from-sky-50/60 via-white/30 to-violet-50/60 backdrop-blur-sm overflow-hidden">
+				{/* Decorative blurred shapes */}
+				<div className="absolute -left-16 -top-16 w-64 h-64 bg-gradient-to-br from-indigo-200/30 to-cyan-200/30 rounded-full filter blur-3xl opacity-60" />
+				<div className="absolute -right-16 -bottom-16 w-64 h-64 bg-gradient-to-br from-pink-200/30 to-yellow-200/20 rounded-full filter blur-3xl opacity-50" />
+
+				<div className="relative w-full max-w-lg px-4 py-8">
+					<div className="absolute inset-0 rounded-3xl bg-white/6 backdrop-blur-xl border border-white/20 shadow-2xl -z-10" />
+					<div className="relative bg-white/30 backdrop-blur-3xl border border-white/25 rounded-3xl p-6 shadow-2xl">
+						{/* Header with Icon */}
+						<div className="text-center mb-6">
+							<div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 mb-4 shadow-lg">
+								<svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+								</svg>
 							</div>
-							<PasswordInput disabled={isPending} className="glass-input" />
-							{error && !isPending && (
-								<p className="text-red-400 text-sm animate-shake">
-									{error}
-								</p>
+							<h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-3">
+								Đăng nhập
+							</h1>
+							<p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
+								Truy cập vào tài khoản của bạn
+							</p>
+						</div>
+
+						{/* Alert */}
+						<div className="mb-4">
+							<Alert className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl backdrop-blur-sm">
+								<BadgeInfo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+								<AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
+									Đăng nhập bằng tài khoản OneVNU (idp.vnu.edu.vn)
+								</AlertDescription>
+							</Alert>
+						</div>
+
+						{/* Form */}
+						<form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto">
+							<div>
+								<Label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+									Mã sinh viên
+								</Label>
+								<div className="relative">
+									<Input
+										name="username"
+										id="username"
+										type="text"
+										placeholder="240*****"
+										required
+										className="w-full px-4 py-3 pl-12 rounded-xl bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm border border-white/30 dark:border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+									/>
+									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+										<svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+										</svg>
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<Label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+									Mật khẩu
+								</Label>
+								<div className="relative">
+									<PasswordInput
+										className="w-full px-4 py-3 pl-12 rounded-xl bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm border border-white/30 dark:border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+									/>
+									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+										<svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+										</svg>
+									</div>
+								</div>
+							</div>
+
+							{error && (
+								<div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-xl p-3">
+									<div className="flex items-center">
+										<svg className="w-4 h-4 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+										</svg>
+										<p className="text-red-700 dark:text-red-300 text-sm font-medium">{error}</p>
+									</div>
+								</div>
 							)}
+
+							<Button
+								type="submit"
+								className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+							>
+								<div className="flex items-center justify-center">
+									<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+									</svg>
+									Đăng nhập
+								</div>
+							</Button>
+						</form>
+
+						{/* Footer */}
+						<div className="mt-6 pt-4 border-t border-white/20 dark:border-gray-700/30">
+							<p className="text-xs text-center text-gray-500 dark:text-gray-400">
+								Hệ thống không lưu trữ thông tin đăng nhập của bạn
+							</p>
 						</div>
 					</div>
-				</CardContent>
-				<CardFooter className="flex-col gap-2">
-					<Button type="submit" className="w-full glass-btn text-black" disabled={isPending}>
-						{isPending ? "Đang đăng nhập..." : "Đăng nhập"}
-					</Button>
-				</CardFooter>
-			</Card>
-			<style jsx global>{`
-			  .glass-card {
-				background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(180,200,255,0.22) 100%);
-				backdrop-filter: blur(24px) saturate(1.2);
-				border: 1.5px solid rgba(255,255,255,0.25);
-				box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-				border-radius: 2rem;
-				transition: box-shadow 0.3s, transform 0.3s;
-			  }
-			  .glass-card:hover {
-				box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.28);
-				transform: scale(1.012);
-			  }
-				.glass-input {
-					background: rgba(255,255,255,0.35);
-					border: 1.2px solid rgba(255,255,255,0.25);
-					backdrop-filter: blur(8px);
-					color: #111;
-					font-weight: 500;
-					transition: border 0.2s, box-shadow 0.2s;
-				}
-			  .glass-input:focus {
-				border: 1.5px solid #7f9cf5;
-				box-shadow: 0 0 0 2px #7f9cf5;
-			  }
-				.glass-btn {
-					background: linear-gradient(90deg, #e0ffe0 0%, #e0e7ff 100%);
-					color: #111;
-					box-shadow: 0 2px 12px 0 rgba(50,205,50,0.10);
-					border-radius: 1.2rem;
-					font-weight: 600;
-					transition: background 0.2s, transform 0.2s, color 0.2s;
-					border: 1px solid #e0e0e0;
-				}
-				.glass-btn:hover {
-					background: linear-gradient(90deg, #e0e7ff 0%, #e0ffe0 100%);
-					color: #222;
-					transform: scale(1.03);
-				}
-			  @keyframes shake {
-				10%, 90% { transform: translateX(-2px); }
-				20%, 80% { transform: translateX(4px); }
-				30%, 50%, 70% { transform: translateX(-8px); }
-				40%, 60% { transform: translateX(8px); }
-			  }
-			  .animate-shake {
-				animation: shake 0.4s;
-			  }
-			`}</style>
-		</form>
+				</div>
+			</div>
+		</div>
 	);
 }
