@@ -6,7 +6,7 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/dashboard");
+    router.replace("/welcome");
   }, [router]);
 
   return null;
