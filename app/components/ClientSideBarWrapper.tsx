@@ -8,33 +8,28 @@ export default function ClientSideBarWrapper({ children }: { children: React.Rea
 	const [username, setUsername] = useState("");
 
 	useEffect(() => {
-		if (typeof window !== "undefined") {
-			const updateAuthState = () => {
-				const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
-				const storedUsername = sessionStorage.getItem("username") || "";
-				setIsSignIn(hasAuth);
-				setUsername(storedUsername);
-			};
+		if (typeof window === "undefined") return;
 
+		const updateAuthState = () => {
+			const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
+			const storedUsername = sessionStorage.getItem("username") || "";
+			setIsSignIn(hasAuth);
+			setUsername(storedUsername);
+		};
+
+		// Initial check
+		updateAuthState();
+
+		// Only listen for authStateChanged, not storage (to avoid conflicts)
+		const handleAuthStateChange = () => {
 			updateAuthState();
+		};
 
-			// Listen for storage changes and custom auth events
-			const handleStorageChange = () => {
-				updateAuthState();
-			};
+		window.addEventListener('authStateChanged', handleAuthStateChange);
 
-			const handleAuthStateChange = () => {
-				updateAuthState();
-			};
-
-			window.addEventListener('storage', handleStorageChange);
-			window.addEventListener('authStateChanged', handleAuthStateChange);
-			
-			return () => {
-				window.removeEventListener('storage', handleStorageChange);
-				window.removeEventListener('authStateChanged', handleAuthStateChange);
-			};
-		}
+		return () => {
+			window.removeEventListener('authStateChanged', handleAuthStateChange);
+		};
 	}, []);
 
 	return (

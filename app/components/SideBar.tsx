@@ -38,7 +38,7 @@ import { logoutAction } from "../actions";
 import { useRouter } from "next/navigation";
 
 const routes = [
-	{ href: "/", label: "Trang chủ", icon: House },
+	{ href: "/dashboard", label: "Trang chủ", icon: House },
 	{ href: "/gpa", label: "Điểm", icon: GraduationCap },
 	{ href: "/schedule", label: "Thời khóa biểu", icon: CalendarCheck2 },
 	{ href: "/exam", label: "Lịch thi", icon: BookOpenCheck },

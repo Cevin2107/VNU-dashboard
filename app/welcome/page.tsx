@@ -1,3 +1,4 @@
+// Trong này có mật khẩu truy cập trang login
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,16 +13,18 @@ export default function WelcomePage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    
+    // Giảm delay để chuyển nhanh hơn
     setTimeout(() => {
       setLoading(false);
-      if (password === "Anhquan210706") {
-        // Chỉ set flag để cho phép truy cập trang login, không set auth hoàn toàn
+      if (password === "Anhquan210706") { // Mật khẩu truy cập login
+
         sessionStorage.setItem("welcome-passed", "ok");
         router.push("/login");
       } else {
         setError("Mật khẩu không đúng!");
       }
-    }, 450);
+    }, 100);
   };
 
   return (
@@ -61,25 +64,6 @@ export default function WelcomePage() {
             </form>
 
             <div className="mt-6 text-xs text-black/60 text-center">Liên hệ admin nếu bạn gặp vấn đề đăng nhập.</div>
-            
-            {/* Debug section */}
-            <div className="mt-4 p-4 bg-yellow-100/50 rounded-lg">
-              <div className="text-xs text-black/70 mb-2">Debug Info:</div>
-              <div className="text-xs text-black/60">
-                Auth: {sessionStorage.getItem("vnu-dashboard-auth") || "null"}<br/>
-                Token: {sessionStorage.getItem("accessToken") ? "exists" : "null"}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  sessionStorage.clear();
-                  window.location.reload();
-                }}
-                className="mt-2 px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-              >
-                Clear Storage & Reload
-              </button>
-            </div>
           </div>
         </div>
       </div>

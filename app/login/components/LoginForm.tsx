@@ -14,7 +14,6 @@ import {
 	Alert,
 	AlertDescription,
 } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BadgeInfo } from "lucide-react";
@@ -48,13 +47,12 @@ export default function LoginForm() {
 			// Lưu vào cookies để server-side có thể truy cập
 			document.cookie = `accessToken=${response.accessToken}; path=/; SameSite=Lax`;
 			document.cookie = `refreshToken=${response.refreshToken}; path=/; SameSite=Lax`;
-			document.cookie = `remember=true; path=/; SameSite=Lax`;
 
 			// Dispatch custom event to notify other components
 			window.dispatchEvent(new CustomEvent('authStateChanged'));
 
-			// KHÔNG redirect ở đây - để WelcomeGuard xử lý
-			// WelcomeGuard sẽ tự động redirect về "/" khi phát hiện đã đăng nhập
+			// Redirect về trang chủ sau khi đăng nhập thành công
+			window.location.href = "/dashboard";
 		} catch (err) {
 			console.error("Login failed:", err);
 			setError("Sai tài khoản hoặc mật khẩu");
@@ -101,10 +99,6 @@ export default function LoginForm() {
 									{error}
 								</p>
 							)}
-						</div>
-						<div className="flex items-center space-x-2">
-							<Checkbox id="remember" name="remember" />
-							<Label htmlFor="remember" className="text-black/80">Duy trì đăng nhập</Label>
 						</div>
 					</div>
 				</CardContent>
