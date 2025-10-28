@@ -9,7 +9,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<WelcomeGuard>
-			<div className="min-h-screen bg-background">
+			<div className="min-h-screen bg-background relative">
 				<SidebarProvider>
 					<ClientSideBarWrapper>
 						<main className="flex justify-center items-center w-full min-h-screen overflow-y-auto">

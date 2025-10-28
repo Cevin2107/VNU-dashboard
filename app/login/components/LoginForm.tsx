@@ -73,11 +73,11 @@ export default function LoginForm() {
 				<div className="absolute -left-16 -top-16 w-64 h-64 bg-gradient-to-br from-indigo-200/30 to-cyan-200/30 rounded-full filter blur-3xl opacity-60" />
 				<div className="absolute -right-16 -bottom-16 w-64 h-64 bg-gradient-to-br from-pink-200/30 to-yellow-200/20 rounded-full filter blur-3xl opacity-50" />
 
-				<div className="relative w-full max-w-lg px-4 py-8">
-					<div className="absolute inset-0 rounded-3xl bg-white/6 border border-white/20 shadow-2xl -z-10" />
-					<div className="relative bg-white/30 border border-white/25 rounded-3xl p-6 shadow-2xl">
+				<div className="relative w-full max-w-lg px-4 py-8 animate-fadeInUp">
+					<div className="absolute inset-0 rounded-3xl glass -z-10" />
+					<div className="relative glass rounded-3xl p-6 shadow-2xl">
 						{/* Header with Icon */}
-						<div className="text-center mb-6">
+						<div className="text-center mb-6 animate-slideInLeft" style={{ animationDelay: '0.2s' }}>
 							<div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 mb-4 shadow-lg">
 								<svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -92,7 +92,7 @@ export default function LoginForm() {
 						</div>
 
 						{/* Alert */}
-						<div className="mb-4">
+						<div className="mb-4 animate-slideInLeft" style={{ animationDelay: '0.4s' }}>
 							<Alert className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl">
 								<BadgeInfo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
 								<AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
@@ -102,20 +102,20 @@ export default function LoginForm() {
 						</div>
 
 						{/* Form */}
-						<form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto">
+						<form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
 							<div>
 								<Label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 									Mã sinh viên
 								</Label>
 								<div className="relative">
-									<Input
-										name="username"
-										id="username"
-										type="text"
-										placeholder="240*****"
-										required
-										className="w-full px-4 py-3 pl-12 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-									/>
+										<Input
+											name="username"
+											id="username"
+											type="text"
+											placeholder="240*****"
+											required
+											className="w-full px-4 py-3 pl-12 rounded-xl glass-input border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+										/>
 									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 										<svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -130,7 +130,7 @@ export default function LoginForm() {
 								</Label>
 								<div className="relative">
 									<PasswordInput
-										className="w-full px-4 py-3 pl-12 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+										className="w-full px-4 py-3 pl-12 rounded-xl glass-input border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
 									/>
 									<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 										<svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,8 @@ export default function LoginForm() {
 
 							<Button
 								type="submit"
-								className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+								className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed btn-hover animate-pulse"
+								style={{ animationDelay: '0.8s' }}
 							>
 								<div className="flex items-center justify-center">
 									<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +166,7 @@ export default function LoginForm() {
 						</form>
 
 						{/* Footer */}
-						<div className="mt-6 pt-4 border-t border-white/20 dark:border-gray-700/30">
+						<div className="mt-6 pt-4 border-t border-white/20 dark:border-gray-700/30 animate-fadeInUp" style={{ animationDelay: '1s' }}>
 							<p className="text-xs text-center text-gray-500 dark:text-gray-400">
 								Hệ thống không lưu trữ thông tin đăng nhập của bạn
 							</p>

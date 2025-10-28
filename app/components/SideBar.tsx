@@ -91,7 +91,7 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 					</Alert>
 				</div>
 			)}
-			<Sidebar variant="floating" collapsible="icon">
+			<Sidebar variant="sidebar" collapsible="icon" className="bg-background border-r border-border/50">
 				<SidebarHeader className="flex items-center justify-center">
 					{open && (
 						<Image
@@ -124,15 +124,33 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 								<SidebarMenuButton
 									asChild
 									isActive={pathname === route.href}
-									className="hover:bg-primary"
+									className={cn(
+										"nav-item group relative overflow-hidden rounded-xl transition-all duration-300 ease-out",
+										"hover:bg-gradient-to-r hover:from-primary/20 hover:to-accent/20 hover:shadow-lg hover:shadow-primary/20",
+										"active:scale-95",
+										pathname === route.href && "nav-item active bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/30"
+									)}
 									tooltip={route.label}
 								>
 									<Link 
 										href={route.href}
 										onClick={(e) => handleLinkClick(e)}
+										className="flex items-center gap-3 w-full"
 									>
-										<route.icon size={20} />
-										<span>{route.label}</span>
+										<div className={cn(
+											"flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300",
+											pathname === route.href 
+												? "bg-white/20 text-white" 
+												: "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white group-hover:scale-110"
+										)}>
+											<route.icon size={18} />
+										</div>
+										<span className={cn(
+											"font-medium transition-all duration-300",
+											pathname === route.href && "text-white"
+										)}>
+											{route.label}
+										</span>
 									</Link>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
@@ -156,10 +174,21 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 					{isSignIn && (
 						<Button
 							variant="outline"
-							className="hover:bg-primary hover:text-white"
+							className={cn(
+								"btn-hover w-full border-red-200 text-red-600 hover:bg-red-500 hover:text-white hover:border-red-500",
+								"transition-all duration-300 ease-out shadow-sm hover:shadow-lg hover:shadow-red-500/20",
+								"active:scale-95"
+							)}
 							onClick={handleLogout}
 						>
-							{open ? "Đăng xuất" : <LogOut />}
+							{open ? (
+								<div className="flex items-center gap-2">
+									<LogOut size={16} />
+									<span>Đăng xuất</span>
+								</div>
+							) : (
+								<LogOut size={16} />
+							)}
 						</Button>
 					)}
 				</SidebarFooter>

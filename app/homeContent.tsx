@@ -158,7 +158,7 @@ export default function HomeContent() {
 
       {/* Stats Cards */}
       <div className="flex flex-col md:flex-row gap-3 mb-2">
-        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1 glass-card card-hover animate-slideInLeft" style={{ animationDelay: '0.1s' }}>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
               <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +172,7 @@ export default function HomeContent() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1 glass-card card-hover animate-slideInLeft" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
               <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,7 +186,7 @@ export default function HomeContent() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1 glass-card card-hover animate-slideInLeft" style={{ animationDelay: '0.3s' }}>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
               <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +202,7 @@ export default function HomeContent() {
       </div>
 
       {/* Student Info Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 mb-2">
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 mb-2 glass-card card-hover animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">Thông tin sinh viên</h2>
@@ -245,12 +245,12 @@ export default function HomeContent() {
 
       {/* Charts */}
       <div className="flex flex-col lg:flex-row gap-3">
-        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1 glass-card card-hover animate-slideInLeft" style={{ animationDelay: '0.5s' }}>
           <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">Điểm GPA theo học kỳ</h3>
           <GPAChart data={gpaTongKet} />
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-2 md:p-3 shadow-xl border border-gray-200 dark:border-gray-700 flex-1 glass-card card-hover animate-slideInLeft" style={{ animationDelay: '0.6s' }}>
           <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">Thống kê điểm môn học</h3>
           <SubjectScoreChart data={subjectScoreCount} />
         </div>
