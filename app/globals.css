@@ -123,3 +123,36 @@
     transition: none !important;
   }
 }
+
+/* Strong overrides to ensure no animations/transitions/scale effects
+   — helps prevent unexpected zoom/scale when navigating or switching tabs. */
+*,
+*::before,
+*::after {
+  transition: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+/* Catch Tailwind utility classes that include scale/animate in the classname
+   and neutralize transform/animation. This is intentionally broad — if you
+   want to re-enable specific effects later, scope these rules more narrowly. */
+[class*="scale-"] ,
+[class*="hover:scale-"] ,
+[class*="group-hover:scale-"] ,
+[class*="focus:scale-"] ,
+[class*="active:scale-"] ,
+[class*="peer-hover:scale-"] {
+  transform: none !important;
+}
+
+[class*="animate-"] {
+  animation: none !important;
+}
+
+/* Also explicitly disable transition properties that use custom properties */
+* {
+  transition-property: none !important;
+  transition-duration: 0s !important;
+  transition-timing-function: linear !important;
+}
