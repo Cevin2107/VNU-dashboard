@@ -14,7 +14,6 @@ import {
 } from "@/types/ResponseTypes";
 
 const BASE_URL = "https://onevnu-mobile-api.vnu.edu.vn/api";
-const USERAGENT = "Dart/3.6 (dart:io)";
 
 function fixSummerSem(danhSachHocKy: DanhSachHocKyResponse[]) {
     danhSachHocKy.forEach((hocKy) => {
@@ -55,9 +54,6 @@ export class ClientAPIHandler {
 			{
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
-				headers: {
-					"User-Agent": USERAGENT,
-				},
 			}
 		);
 		this.accessToken = response.data.accessToken;
@@ -76,9 +72,6 @@ export class ClientAPIHandler {
 				{
 					baseURL: BASE_URL,
 					httpsAgent: this.agent,
-					headers: {
-						"User-Agent": USERAGENT,
-					},
 				}
 			);
 			this.accessToken = response.data.accessToken;
@@ -99,8 +92,7 @@ export class ClientAPIHandler {
 			"/sinhvien",
 			{
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -133,8 +125,7 @@ export class ClientAPIHandler {
 				idChuongTrinhDaoTao: idChuongTrinhDaoTao,
 			},
 			headers: {
-				Authorization: `Bearer ${this.accessToken}`,
-				"User-Agent": USERAGENT
+				Authorization: `Bearer ${this.accessToken}`
 			},
 			baseURL: BASE_URL,
 			httpsAgent: this.agent,
@@ -151,8 +142,7 @@ export class ClientAPIHandler {
 			"/sinhvien/getTongKetDenHienTai",
 			{
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -174,8 +164,7 @@ export class ClientAPIHandler {
 					isTheoChuongTrinhDaoTao: "1",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -198,8 +187,7 @@ export class ClientAPIHandler {
 					isTheoChuongTrinhDaoTao: "1",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -222,8 +210,7 @@ export class ClientAPIHandler {
 					isTheoChuongTrinhDaoTao: "1",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -248,8 +235,7 @@ export class ClientAPIHandler {
 					kieuTruong: "TruongChinh",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -271,8 +257,7 @@ export class ClientAPIHandler {
 					kieuTruong: "TruongChinh",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -295,8 +280,7 @@ export class ClientAPIHandler {
 					kieuTruong: "TruongChinh",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -322,8 +306,7 @@ export class ClientAPIHandler {
 					kieuTruong: "TruongChinh",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
@@ -347,8 +330,7 @@ export class ClientAPIHandler {
 					kieuTruong: "TruongChinh",
 				},
 				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					"User-Agent": USERAGENT
+					Authorization: `Bearer ${this.accessToken}`
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
