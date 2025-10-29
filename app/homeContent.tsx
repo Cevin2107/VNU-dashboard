@@ -73,8 +73,15 @@ export default function HomeContent() {
 
         const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
 
-        const tongket = (await apiHandler.getTongKetDenHienTai())[0];
-        const svInfo = await apiHandler.getInfoSinhVien();
+        // Fetch dữ liệu cơ bản song song (parallel)
+        const [tongket, svInfo, danhSachHocKy, danhSachHocKyTKB] = await Promise.all([
+          apiHandler.getTongKetDenHienTai().then(res => res[0]),
+          apiHandler.getInfoSinhVien(),
+          apiHandler.getDanhSachHocKyTheoDiem(),
+          apiHandler.getDanhSachHocKyTheoThoiKhoaBieu()
+        ]);
+
+        // Fetch class data
         const classData = (await apiHandler.getDataLopDaoTao(
           svInfo.idLopDaoTao,
           svInfo.guidDonVi,
@@ -85,7 +92,20 @@ export default function HomeContent() {
           svInfo.idChuongTrinhDaoTao
         ))[0];
 
-        const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoDiem();
+        // Tối ưu: Chỉ lấy 3 học kỳ gần nhất cho dashboard (đủ để vẽ chart)
+        const recentSemesters = danhSachHocKy.slice(-3);
+        
+        // Fetch GPA và điểm song song cho các học kỳ gần nhất
+        const semesterDataPromises = recentSemesters.map(async (hocKy) => {
+          const [tongketHocKy, diemHocKy] = await Promise.all([
+            apiHandler.getDiemTrungBinhHocKy(hocKy.id).then(res => res[0]),
+            apiHandler.getDiemThiHocKy(hocKy.id)
+          ]);
+          return { hocKy, tongketHocKy, diemHocKy };
+        });
+
+        const semesterResults = await Promise.all(semesterDataPromises);
+
         const gpaTongKet: any[] = [];
         const subjectScoreCount: Record<SubjectScore, number> = {
           [SubjectScore.A_plus]: 0,
@@ -99,12 +119,8 @@ export default function HomeContent() {
           [SubjectScore.F]: 0
         };
 
-        // Biến lưu GPA học kỳ hiện tại
-        let currentSemesterGPA = null;
-
-        for (const hocKy of danhSachHocKy) {
-          const tongketHocKy = (await apiHandler.getDiemTrungBinhHocKy(hocKy.id))[0];
-          const diemHocKy = await apiHandler.getDiemThiHocKy(hocKy.id);
+        // Process kết quả
+        semesterResults.forEach(({ hocKy, tongketHocKy, diemHocKy }) => {
           diemHocKy.forEach((diem) => {
             subjectScoreCount[diem.diemHeChu] += 1;
           });
@@ -114,34 +130,24 @@ export default function HomeContent() {
             tongket: Number.parseFloat(tongketHocKy.diemTrungBinhHe4_HocKy),
             tichluy: Number.parseFloat(tongketHocKy.diemTrungBinhHe4_TichLuyDenHocKyHienTai)
           });
-        }
+        });
         gpaTongKet.sort((a, b) => Number(a.id) - Number(b.id));
 
         // Lấy thời khóa biểu học kỳ hiện tại và filter lịch hôm nay
         let todaySchedule: any[] = [];
         let fullSchedule: ThoiKhoaBieuResponse[] = [];
         let currentSemesterIdFromSchedule: string | null = null;
+        let currentSemesterGPA = null;
         
         try {
-          // Lấy danh sách học kỳ có thời khóa biểu (khác với danh sách học kỳ có điểm)
-          const danhSachHocKyTKB = await apiHandler.getDanhSachHocKyTheoThoiKhoaBieu();
-          console.log("Danh sách học kỳ có TKB:", danhSachHocKyTKB.map(hk => `${hk.ten}/${hk.nam} (ID: ${hk.id})`));
-          
           if (danhSachHocKyTKB.length > 0) {
             // Lấy học kỳ có ID cao nhất (học kỳ hiện tại)
             const sortedSemesters = [...danhSachHocKyTKB].sort((a, b) => Number(b.id) - Number(a.id));
             const currentSemester = sortedSemesters[0];
             currentSemesterIdFromSchedule = currentSemester.id;
-            console.log("Học kỳ hiện tại (có TKB):", `${currentSemester.ten}/${currentSemester.nam} (ID: ${currentSemester.id})`);
             
             const thoiKhoaBieu = await apiHandler.getThoiKhoaBieuHocKy(currentSemester.id);
-            fullSchedule = thoiKhoaBieu; // Lưu toàn bộ lịch học
-            console.log("Tổng số lịch học trong kỳ:", thoiKhoaBieu.length);
-            
-            // Log sample data để debug
-            if (thoiKhoaBieu.length > 0) {
-              console.log("Sample lịch học:", thoiKhoaBieu[0]);
-            }
+            fullSchedule = thoiKhoaBieu;
             
             // Lấy ngày hôm nay (0 = Chủ nhật, 1 = Thứ 2, ..., 6 = Thứ 7)
             const today = new Date().getDay();
@@ -158,76 +164,34 @@ export default function HomeContent() {
               6: "6"  // Thứ 7
             };
             
-            const dayNameMap: Record<number, string> = {
-              0: "Chủ nhật",
-              1: "Thứ 2", 
-              2: "Thứ 3",
-              3: "Thứ 4",
-              4: "Thứ 5",
-              5: "Thứ 6",
-              6: "Thứ 7"
-            };
-            
-            console.log("Hôm nay là:", dayNameMap[today], `(API value: ${dayToApiMap[today]})`);
-            console.log("Các ngày có lịch (API values):", [...new Set(thoiKhoaBieu.map(item => item.ngayTrongTuan))]);
+            const todayApiValue = dayToApiMap[today];
             
             todaySchedule = thoiKhoaBieu
-              .filter(item => item.ngayTrongTuan === dayToApiMap[today] || item.ngayTrongTuan === (today === 0 ? "7" : dayToApiMap[today]))
+              .filter(item => item.ngayTrongTuan === todayApiValue || item.ngayTrongTuan === (today === 0 ? "7" : todayApiValue))
               .sort((a, b) => Number(a.tietBatDau) - Number(b.tietBatDau));
-            
-            console.log("Lịch học hôm nay:", todaySchedule.length, "môn");
-            if (todaySchedule.length > 0) {
-              console.log("Chi tiết:", todaySchedule.map(s => `${s.tenHocPhan} (${s.tietBatDau}-${s.tietKetThuc})`));
-            }
           }
         } catch (err) {
           console.error("Error fetching schedule:", err);
         }
 
-        // Lấy GPA của kỳ hiện tại (kỳ có TKB)
-        // CHỈ hiển thị GPA nếu kỳ đó đã hoàn thành và có điểm
-        // Nếu kỳ hiện tại chưa có điểm hoặc đang học thì hiện N/A
+        // Lấy GPA của kỳ hiện tại song song (nếu có)
         if (currentSemesterIdFromSchedule) {
           try {
-            console.log("Đang kiểm tra GPA cho kỳ ID:", currentSemesterIdFromSchedule);
-            
-            // Kiểm tra xem kỳ này có trong danh sách kỳ đã có điểm không
             const semesterWithGrades = danhSachHocKy.find(hk => hk.id === currentSemesterIdFromSchedule);
             
             if (semesterWithGrades) {
-              // Kỳ này có trong danh sách điểm, lấy GPA
               const currentSemesterGPAData = await apiHandler.getDiemTrungBinhHocKy(currentSemesterIdFromSchedule);
               
-              if (currentSemesterGPAData.length > 0) {
-                const gpaData = currentSemesterGPAData[0];
-                // Kiểm tra xem GPA có hợp lệ không (không phải 0 hoặc null)
-                const gpaValue = Number.parseFloat(gpaData.diemTrungBinhHe4_HocKy);
-                
-                if (gpaValue > 0) {
-                  currentSemesterGPA = {
-                    tenHocKy: `Học kỳ ${semesterWithGrades.ten} năm học ${semesterWithGrades.nam}`,
-                    gpa: gpaValue
-                  };
-                  console.log("✓ GPA kỳ hiện tại:", currentSemesterGPA.tenHocKy, "-", currentSemesterGPA.gpa);
-                } else {
-                  console.log("✗ Kỳ hiện tại có dữ liệu nhưng GPA = 0 (chưa hoàn thành)");
-                  currentSemesterGPA = null;
+              if (currentSemesterGPAData && currentSemesterGPAData.length > 0) {
+                const gpaValue = Number.parseFloat(currentSemesterGPAData[0].diemTrungBinhHe4_HocKy);
+                if (!isNaN(gpaValue) && gpaValue > 0) {
+                  currentSemesterGPA = gpaValue;
                 }
-              } else {
-                console.log("✗ Kỳ hiện tại không có dữ liệu GPA");
-                currentSemesterGPA = null;
               }
-            } else {
-              console.log("✗ Kỳ hiện tại chưa có trong danh sách điểm (đang học)");
-              currentSemesterGPA = null;
             }
           } catch (err) {
             console.error("Error fetching current semester GPA:", err);
-            currentSemesterGPA = null;
           }
-        } else {
-          console.log("✗ Không tìm thấy kỳ hiện tại");
-          currentSemesterGPA = null;
         }
 
         setData({
@@ -263,7 +227,6 @@ export default function HomeContent() {
           todaySchedule: [],
           fullSchedule: []
         } as any);
-        // WelcomeGuard sẽ xử lý redirect nếu cần
       } finally {
         setLoading(false);
       }
@@ -312,6 +275,17 @@ export default function HomeContent() {
     return <div className="w-full space-y-2 mr-2 mt-2 mb-2"></div>;
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
+        <div className="text-center">
+          <div className="w-20 h-20 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400 text-lg font-medium animate-pulse">Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -346,7 +320,7 @@ export default function HomeContent() {
             </div>
             <div className="flex-1">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                Xin chào {svInfo.hoVaTen}! 👋
+                Xin chào, {svInfo.hoVaTen}! 👋
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">MSV: {svInfo.maSinhVien}</p>
             </div>
@@ -431,7 +405,7 @@ export default function HomeContent() {
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-0.5">GPA kỳ này</p>
               <p className="text-2xl font-black text-gray-900 dark:text-white">
-                {currentSemesterGPA ? currentSemesterGPA.gpa.toFixed(2) : "N/A"}
+                {currentSemesterGPA ? currentSemesterGPA.toFixed(2) : "N/A"}
               </p>
             </div>
           </div>
@@ -471,7 +445,7 @@ export default function HomeContent() {
             <DatePicker 
               date={selectedDate} 
               setDate={setSelectedDate}
-              className="text-sm font-medium border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-blue-400 dark:hover:border-blue-500 rounded-[14px] transition-all duration-300"
+              className="text-sm font-semibold border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-[14px] transition-all duration-300 shadow-sm"
             />
           </div>
         </div>

@@ -127,43 +127,60 @@ export default function Timetable({data, periodTime}: {data: ThoiKhoaBieuRespons
 	}
 
 	return (
-		<div className="w-full max-w-7xl mx-auto p-4 bg-white">
-			<div className="grid grid-cols-8 gap-0 border border-gray-200">
-				{/* Header Row */}
-				<div className="border-r border-gray-200 relative">
-          			<div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200"></div>
-        		</div>
-				{daysAbbr.map((day, dayIndex) => (
-					<div key={day} className="border-r border-gray-200 text-center py-3">
-						<Label className={`text-sm font-bold block text-center ${getCurrDayOfWeek() == dayIndex + 1 ? "text-red-500" : "text-gray-900"}`}>{day}</Label>
-					</div>
-				))}
-
-				{/* Time Slots and Events */}
-				{timeSlots.map((time, timeIndex) => (
-					<div key={time} className="contents">
-						{/* Time Column */}
-						<div className="border-r border-t border-gray-200 relative min-h-[60px]">
-							<Label className="text-sm text-gray-600 absolute -top-2 left-3">{time}</Label>
+		<div className="w-full mx-auto overflow-x-auto pb-4">
+			<div className="min-w-[900px]">
+				<div className="grid grid-cols-8 gap-0 rounded-2xl overflow-hidden shadow-xl border border-gray-200/50 dark:border-gray-700/50 bg-white dark:bg-gray-800">
+					{/* Header Row */}
+					<div className="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 border-r border-gray-200/80 dark:border-gray-600/50"></div>
+					{daysAbbr.map((day, dayIndex) => (
+						<div 
+							key={day} 
+							className={`border-r border-gray-200/80 dark:border-gray-600/50 text-center py-3.5 font-bold text-base transition-all duration-300 ${
+								getCurrDayOfWeek() === dayIndex + 1 
+									? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md" 
+									: "bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+							}`}
+						>
+							{day}
 						</div>
+					))}
 
-						{/* Day Columns */}
-						{daysAbbr.map((day, dayIndex) => (
-						<div key={`${day}-${time}`} className="border-r border-t border-gray-200 relative min-h-[60px]">
-							{timeIndex === 0 && (
-							<div className="absolute inset-0 overflow-visible">
-								{getEventsForDay(dayIndex + 1).map((overlapInfo) => 
-									<SubjectCard 
-									key={`${overlapInfo.event.maHocPhan}-${overlapInfo.event.ngayTrongTuan}-${overlapInfo.event.tietBatDau}`} 
-									eventInfo={overlapInfo}
-									periodTime={periodTime} />
-								)}
+					{/* Time Slots and Events */}
+					{timeSlots.map((time, timeIndex) => (
+						<div key={time} className="contents">
+							{/* Time Column */}
+							<div className="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 border-r border-t border-gray-200/80 dark:border-gray-600/50 relative min-h-[65px] flex items-center justify-center">
+								<span className="text-xs font-bold text-gray-600 dark:text-gray-400 bg-white/60 dark:bg-gray-800/60 px-2.5 py-1 rounded-md border border-gray-200/50 dark:border-gray-600/50 shadow-sm">
+									{time}
+								</span>
 							</div>
-							)}
+
+							{/* Day Columns */}
+							{daysAbbr.map((day, dayIndex) => (
+								<div 
+									key={`${day}-${time}`} 
+									className={`border-r border-t border-gray-200/80 dark:border-gray-600/50 relative min-h-[65px] transition-colors ${
+										getCurrDayOfWeek() === dayIndex + 1 
+											? "bg-blue-50/40 dark:bg-blue-900/10 hover:bg-blue-50/60 dark:hover:bg-blue-900/15" 
+											: "bg-white dark:bg-gray-800 hover:bg-gray-50/50 dark:hover:bg-gray-750"
+									}`}
+								>
+									{timeIndex === 0 && (
+										<div className="absolute inset-0 overflow-visible">
+											{getEventsForDay(dayIndex + 1).map((overlapInfo) => 
+												<SubjectCard 
+													key={`${overlapInfo.event.maHocPhan}-${overlapInfo.event.ngayTrongTuan}-${overlapInfo.event.tietBatDau}`} 
+													eventInfo={overlapInfo}
+													periodTime={periodTime} 
+												/>
+											)}
+										</div>
+									)}
+								</div>
+							))}
 						</div>
-						))}
-					</div>
-				))}
+					))}
+				</div>
 			</div>
 		</div>
 	)

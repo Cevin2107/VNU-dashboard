@@ -3,7 +3,17 @@
 import { usePathname } from 'next/navigation';
 import SideBar from './SideBar';
 
-export default function ConditionalSideBar({ isSignIn, username }: { isSignIn: boolean, username: string }) {
+export default function ConditionalSideBar({ 
+  isSignIn, 
+  username,
+  studentId,
+  fullName
+}: { 
+  isSignIn: boolean; 
+  username: string;
+  studentId: string;
+  fullName: string;
+}) {
   const pathname = usePathname();
   
   // Ẩn sidebar ở trang welcome và login
@@ -11,5 +21,10 @@ export default function ConditionalSideBar({ isSignIn, username }: { isSignIn: b
     return null;
   }
   
-  return <SideBar isSignIn={isSignIn} username={username} />;
+  return <SideBar 
+    isSignIn={isSignIn} 
+    username={username}
+    studentId={studentId}
+    fullName={fullName}
+  />;
 }

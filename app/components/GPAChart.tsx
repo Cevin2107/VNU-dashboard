@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { 
 	LineChart, 
@@ -12,7 +13,7 @@ import {
 	AreaChart,
 } from "recharts";
 
-export default function GPAChart({data}: {
+function GPAChart({data}: {
 	data: { id: string; tenHocKy: string; tongket: number; tichluy: number }[];
 }) {
 	const chartConfig: ChartConfig = {
@@ -88,15 +89,17 @@ export default function GPAChart({data}: {
 						<Area
 							type="monotone"
 							dataKey="tichluy"
-							stroke={chartConfig.tichluy.color}
-							strokeWidth={3}
-							fill="url(#colorTichluy)"
-							dot={{ r: 4, strokeWidth: 2, fill: 'white' }}
-							activeDot={{ r: 6, strokeWidth: 2 }}
-						/>
-					</AreaChart>
-				</ResponsiveContainer>
-			</ChartContainer>
-		</div>
+						stroke={chartConfig.tichluy.color}
+						strokeWidth={3}
+						fill="url(#colorTichluy)"
+						dot={{ r: 4, strokeWidth: 2, fill: 'white' }}
+						activeDot={{ r: 6, strokeWidth: 2 }}
+					/>
+				</AreaChart>
+			</ResponsiveContainer>
+		</ChartContainer>
+	</div>
 	);
 }
+
+export default React.memo(GPAChart);

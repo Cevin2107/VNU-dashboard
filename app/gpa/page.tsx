@@ -13,7 +13,7 @@ import {
 import { Fragment } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { withAuth } from "@/lib/APIHandler";
-import DesireGPACal from "./components/DesireGPACal";
+import GPACalculator from "./components/GPACalculator";
 import SubjectRow from "./components/SubjectRow";
 import { Metadata } from "next";
 
@@ -54,13 +54,13 @@ export default async function GPAPage() {
 						Điểm Học Tập 📊
 					</h1>
 					<p className="text-sm text-gray-600 dark:text-gray-400">
-						Chi tiết điểm các học kỳ và tính toán GPA mong muốn
+						Chi tiết điểm các học kỳ và tính toán GPA
 					</p>
 				</div>
 
-				<DesireGPACal credit={Number.parseInt(tongSoTinChiTichLuy)} gpa={Number.parseFloat(diemTrungBinhHe4TichLuy)}/>
+				<GPACalculator />
 
-				<div className="bg-white dark:bg-gray-800 rounded-[24px] overflow-hidden shadow-xl border border-gray-100 dark:border-gray-700">
+				<div className="bg-white dark:bg-gray-800 rounded-[24px] overflow-hidden shadow-xl border border-gray-100 dark:border-gray-700 mt-6">
 					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>

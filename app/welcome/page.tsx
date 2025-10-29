@@ -16,7 +16,7 @@ export default function WelcomePage() {
     // Giảm delay để chuyển nhanh hơn
     setTimeout(() => {
       setLoading(false);
-      if (password === "Anhquan210706") {
+      if (password === "Anhquan210706") { // 🔥 Mật khẩu
         // Chỉ set flag để cho phép truy cập trang login, không set auth hoàn toàn
         sessionStorage.setItem("welcome-passed", "ok");
         router.push("/login");

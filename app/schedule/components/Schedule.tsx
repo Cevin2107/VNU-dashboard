@@ -31,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { BadgeQuestionMark } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toCalendar } from "@/lib/to_ical";
 import Timetable from "./Timetable";
 import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
@@ -48,6 +48,15 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 	const [totalWeeks, setTotalWeeks] = useState<number>(1);
 	const [exportError, setExportError] = useState<string | null>(null);
 	const [save, setSave] = useState<CheckedState>(false);
+
+	// Auto-load kỳ hiện tại (kỳ có ID cao nhất)
+	useEffect(() => {
+		if (data && data.length > 0 && !selectedId) {
+			const sortedSemesters = [...data].sort((a, b) => Number(b.id) - Number(a.id));
+			const currentSemester = sortedSemesters[0];
+			handleSemesterChange(currentSemester.id);
+		}
+	}, [data]);
 
 	function handleCustomPeriodTime() {
 		if (save) {
@@ -99,41 +108,46 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 
 	return (
 		<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
-			{/* Page Header */}
-			<div className="mb-6">
-				<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-					Thời Khóa Biểu 📅
-				</h1>
-				<p className="text-sm text-gray-600 dark:text-gray-400">
-					Xem và quản lý lịch học theo tuần
-				</p>
-			</div>
+			{/* Compact Header with Controls */}
+			<div className="bg-white dark:bg-gray-800 rounded-[20px] p-4 shadow-lg mb-4 border border-gray-100 dark:border-gray-700">
+				<div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+					{/* Title and Semester Select */}
+					<div className="flex items-center gap-4 flex-1 w-full md:w-auto">
+						<div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 flex-shrink-0">
+							<svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+							</svg>
+						</div>
+						<div className="flex-1 min-w-0">
+							<h1 className="text-xl font-bold text-gray-900 dark:text-white">Thời Khóa Biểu</h1>
+							<Select onValueChange={handleSemesterChange} value={selectedId || undefined}>
+								<SelectTrigger className="w-full max-w-xs rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-colors text-sm py-2 mt-1.5 font-medium">
+									<SelectValue placeholder="Chọn học kỳ" />
+								</SelectTrigger>
+								<SelectContent>
+									{data.map((hocKy) => (
+										<SelectItem key={hocKy.id} value={hocKy.id}>
+											{hocKy.tenHocKy}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
 
-			<div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-xl mb-6 border border-gray-100 dark:border-gray-700">
-				<Select onValueChange={handleSemesterChange}>
-					<SelectTrigger className="w-full rounded-[14px] border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-colors text-base py-6">
-						<SelectValue placeholder="Chọn học kỳ" />
-					</SelectTrigger>
-					<SelectContent>
-						{data.map((hocKy) => (
-							<SelectItem key={hocKy.id} value={hocKy.id}>
-								{hocKy.tenHocKy}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				{currentHocKy && (
-					<div className="flex flex-wrap items-center gap-3 mt-6">
-						<Dialog>
-							<DialogTrigger asChild>
-								<Button className="rounded-[14px] text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-5 py-2.5">
-									⏰ Đổi thời gian tiết học
-								</Button>
-							</DialogTrigger>
-							<DialogContent className="max-w-md rounded-[24px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-								<DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-									Đổi thời gian tiết học
-								</DialogTitle>
+					{/* Action Buttons */}
+					{currentHocKy && (
+						<div className="flex flex-wrap items-center gap-2">
+							<Dialog>
+								<DialogTrigger asChild>
+									<Button className="rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 px-3 py-2 h-auto">
+										⏰ Thời gian tiết học
+									</Button>
+								</DialogTrigger>
+								<DialogContent className="max-w-md rounded-[24px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+									<DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
+										Đổi thời gian tiết học
+									</DialogTitle>
 								<Separator className="bg-gray-200 dark:bg-gray-700" />
 								<div className="space-y-3">
 									<div className="grid grid-cols-3 gap-2 font-bold text-xs text-gray-700 dark:text-gray-300">
@@ -187,15 +201,15 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 						</Dialog>
 						<Popover open={exportOpen} onOpenChange={setExportOpen}>
 							<PopoverTrigger asChild>
-								<Button className="rounded-[14px] text-sm font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-5 py-2.5">
-									📤 Xuất thời khóa biểu
+								<Button className="rounded-lg text-xs font-semibold bg-green-600 hover:bg-green-700 px-3 py-2 h-auto">
+									📤 Xuất lịch
 								</Button>
 							</PopoverTrigger>
-							<PopoverContent className="w-full p-4 space-y-4 rounded-[18px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" align="start">
+							<PopoverContent className="w-full p-4 space-y-4 rounded-[18px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl" align="start">
 								<div className="grid grid-cols-2 gap-4">
 									<div className="space-y-2 w-full">
 										<Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ngày bắt đầu học kì</Label>
-										<DatePicker date={startDate} setDate={setStartDate} className="text-sm border-2 border-gray-200 dark:border-gray-600 hover:border-green-500 dark:hover:border-green-500 w-full justify-between rounded-[14px]" />
+										<DatePicker date={startDate} setDate={setStartDate} className="text-sm border-2 border-gray-200 dark:border-gray-600 hover:border-green-500 dark:hover:border-green-500 w-full justify-between rounded-[14px] text-gray-900 dark:text-gray-100" />
 									</div>
 									<div className="space-y-2 w-full">
 										<Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Số tuần học</Label>
@@ -217,27 +231,30 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 						</Popover>
 						<Tooltip>
 							<TooltipTrigger>
-								<BadgeQuestionMark className="hover:text-blue-600 dark:hover:text-blue-400 w-6 h-6 text-gray-500 dark:text-gray-400"/>
+								<BadgeQuestionMark className="hover:text-blue-600 dark:hover:text-blue-400 w-5 h-5 text-gray-500 dark:text-gray-400"/>
 							</TooltipTrigger>
-							<TooltipContent align="start" side="right" className="rounded-[14px] text-sm max-w-xs">
+							<TooltipContent align="start" side="right" className="rounded-lg text-xs max-w-xs">
 								Xuất file .ics có thể import vào các ứng dụng lịch như Google Calendar, Apple Calendar, Outlook, etc...
 							</TooltipContent>
 						</Tooltip>
 					</div>
-				)}
+					)}
+				</div>
 			</div>
-			{currentHocKy ? (
-				<ScrollArea className="h-[calc(100vh-14rem)] w-full rounded-[24px] [&>[data-slot=scroll-area-scrollbar]]:hidden">
-					<Timetable data={currentHocKy!} periodTime={periodTime}/>
-				</ScrollArea>
-			) : loading && (
-				<div className="flex items-center justify-center h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-[24px] border border-gray-100 dark:border-gray-700">
+
+			{/* Timetable Display Area */}
+			{loading ? (
+				<div className="flex items-center justify-center h-[calc(100vh-10rem)] bg-white dark:bg-gray-800 rounded-[20px] border border-gray-100 dark:border-gray-700 shadow-lg">
 					<div className="flex flex-col items-center gap-4">
-						<div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-						<span className="text-base font-semibold text-gray-600 dark:text-gray-400">Đang tải thời khóa biểu...</span>
+						<div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+						<span className="text-base font-semibold text-gray-600 dark:text-gray-400 animate-pulse">Đang tải thời khóa biểu...</span>
 					</div>
 				</div>
-			)}
+			) : currentHocKy ? (
+				<div className="h-[calc(100vh-10rem)] w-full overflow-auto">
+					<Timetable data={currentHocKy!} periodTime={periodTime}/>
+				</div>
+			) : null}
 		</div>
 	);
 }

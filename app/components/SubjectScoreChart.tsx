@@ -1,10 +1,11 @@
 "use client";
 
+import React from "react";
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
 import { SubjectScore } from "@/types/SubjectTypes";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
-export default function SubjectScoreChart({ data }: { data: Record<SubjectScore, number> }) {
+function SubjectScoreChart({ data }: { data: Record<SubjectScore, number> }) {
 	const chartConfig: ChartConfig = {
 		[SubjectScore.A_plus]: {
 			label: "A+",
@@ -139,3 +140,5 @@ export default function SubjectScoreChart({ data }: { data: Record<SubjectScore,
 		</div>
 	);
 }
+
+export default React.memo(SubjectScoreChart);

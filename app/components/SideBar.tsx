@@ -45,7 +45,17 @@ const routes = [
 	{ href: "/exam", label: "Lịch thi", icon: BookOpenCheck },
 ];
 
-export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, username: string }) {
+export default function SideBar({ 
+	isSignIn,
+	username,
+	studentId,
+	fullName
+}: { 
+	isSignIn: boolean; 
+	username: string;
+	studentId: string;
+	fullName: string;
+}) {
 	const pathname = usePathname();
 	const { open, setOpen } = useSidebar();
 	const [showAlert, setShowAlert] = useState(false);
@@ -132,12 +142,25 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 						/>
 						<SidebarMenu>
 							<SidebarMenuItem>
-								<SidebarMenuButton asChild className="hover:bg-white/20 dark:hover:bg-gray-700/30 active:bg-transparent">
+								<SidebarMenuButton asChild className="hover:bg-transparent active:bg-transparent cursor-default">
 									<div className="flex items-center gap-3">
 										<CircleUser size={32} className="text-gray-700 dark:text-gray-200" />
-										<span className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-											{isSignIn ? username : "Hello!"}
-										</span>
+										<div className="text-left flex-1 min-w-0">
+											{isSignIn ? (
+												<>
+													<div className="text-xs text-gray-600 dark:text-gray-400 font-medium truncate">
+														{studentId || username}
+													</div>
+													<div className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
+														{fullName || username}
+													</div>
+												</>
+											) : (
+												<span className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+													Hello!
+												</span>
+											)}
+										</div>
 									</div>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
@@ -170,7 +193,7 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 														"flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-300",
 														pathname === route.href 
 															? "bg-white/20 text-white" 
-															: "bg-blue-500/10 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-500/20 dark:group-hover:bg-blue-400/20"
+															: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
 													)}>
 														<route.icon size={20} />
 													</div>
