@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unstable_cache } from "next/cache";
 
 const ADMIN_PASSWORD = "Anhquan210706";
 const EDGE_CONFIG_KEY = "welcome_enabled";
@@ -10,29 +11,41 @@ const isEdgeConfigConfigured = () => {
 	return !!process.env.EDGE_CONFIG;
 };
 
-export async function getWelcomeEnabled(): Promise<boolean> {
-	try {
-		// Try Edge Config if configured
-		if (isEdgeConfigConfigured()) {
-			const { get } = await import("@vercel/edge-config");
-			const value = await get(EDGE_CONFIG_KEY);
-			
-			if (value !== null && value !== undefined) {
-				// Edge Config can return string or boolean
-				return value === "true" || value === true;
+// Cache trong 60 giây để tránh fetch liên tục
+const getCachedWelcomeEnabled = unstable_cache(
+	async () => {
+		try {
+			// Try Edge Config if configured
+			if (isEdgeConfigConfigured()) {
+				const { get } = await import("@vercel/edge-config");
+				const value = await get(EDGE_CONFIG_KEY);
+				
+				if (value !== null && value !== undefined) {
+					// Edge Config can return string or boolean
+					return value === "true" || value === true;
+				}
 			}
+			
+			// Fallback to env var (for dev without Edge Config)
+			if (process.env.WELCOME_ENABLED !== undefined) {
+				return process.env.WELCOME_ENABLED === "true";
+			}
+		} catch (error) {
+			console.error("Error reading from Edge Config:", error);
 		}
 		
-		// Fallback to env var (for dev without Edge Config)
-		if (process.env.WELCOME_ENABLED !== undefined) {
-			return process.env.WELCOME_ENABLED === "true";
-		}
-	} catch (error) {
-		console.error("Error reading from Edge Config:", error);
+		// Default: true (welcome enabled)
+		return true;
+	},
+	["welcome-enabled-setting"],
+	{
+		revalidate: 60, // Cache 60 giây (đủ nhanh mà vẫn sync)
+		tags: ["welcome-setting"],
 	}
-	
-	// Default: true (welcome enabled)
-	return true;
+);
+
+export async function getWelcomeEnabled(): Promise<boolean> {
+	return getCachedWelcomeEnabled();
 }
 
 export async function setWelcomeEnabled(
@@ -104,8 +117,12 @@ export async function setWelcomeEnabled(
 			};
 		}
 
-		// Revalidate để apply thay đổi
+		// Revalidate cache để apply thay đổi ngay
 		revalidatePath("/", "layout");
+		
+		// Thêm: Force revalidate cache của getWelcomeEnabled
+		const { revalidateTag } = await import("next/cache");
+		revalidateTag("welcome-setting");
 
 		return {
 			success: true,
