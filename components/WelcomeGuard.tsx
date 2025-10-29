@@ -56,7 +56,7 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
       // Cho các trang đã auth, check nhanh hơn
       checkAuth();
     }
-  }, [pathname, router]);
+  }, [pathname, router, isClient]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !isClient) return;
@@ -77,7 +77,7 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
       window.removeEventListener('storage', handleAuthChange);
       window.removeEventListener('authStateChanged', handleAuthChange);
     };
-  }, []);
+  }, [isClient]);
 
   return <>{children}</>;
 }

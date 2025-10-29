@@ -8,7 +8,7 @@ import SubjectScoreChart from "./components/SubjectScoreChart";
 import { SubjectScore } from "@/types/SubjectTypes";
 import { useRouter } from "next/navigation";
 import { DatePicker } from "@/components/ui/date-picker";
-import { ThoiKhoaBieuResponse, TongKetResponse, SinhVienResponse, LopDaoTaoResponse, DiemTrungBinhHocKyResponse, DiemThiHocKyResponse } from "@/types/ResponseTypes";
+import { ThoiKhoaBieuResponse, TongKetResponse, SinhVienResponse, LopDaoTaoResponse } from "@/types/ResponseTypes";
 
 import HSB from "@/public/hsb.png";
 import HUS from "@/public/hus.png";
@@ -144,21 +144,6 @@ export default function HomeContent() {
             
             const thoiKhoaBieu = await apiHandler.getThoiKhoaBieuHocKy(currentSemester.id);
             fullSchedule = thoiKhoaBieu;
-            
-            // Lấy ngày hôm nay (0 = Chủ nhật, 1 = Thứ 2, ..., 6 = Thứ 7)
-            const today = new Date().getDay();
-            
-            // API trả về ngayTrongTuan là số string: "1" = Thứ 2, "2" = Thứ 3, ...
-            // "0" hoặc "7" = Chủ nhật
-            const dayToApiMap: Record<number, string> = {
-              0: "0", // Chủ nhật
-              1: "1", // Thứ 2
-              2: "2", // Thứ 3
-              3: "3", // Thứ 4
-              4: "4", // Thứ 5
-              5: "5", // Thứ 6
-              6: "6"  // Thứ 7
-            };
           }
         } catch (err) {
           console.error("Error fetching schedule:", err);

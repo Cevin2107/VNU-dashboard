@@ -24,7 +24,25 @@ export default function GPACalculator() {
 	const [semesters, setSemesters] = useState<SemesterData[]>([]);
 	const [selectedSemesterId, setSelectedSemesterId] = useState<string>("");
 	const [selectedSemesterIds, setSelectedSemesterIds] = useState<string[]>([]);
-	const [result, setResult] = useState<any>(null);
+	const [result, setResult] = useState<{
+		type: string;
+		gpa?: string;
+		totalCredits?: number;
+		semesters?: number;
+		details?: unknown[];
+		years?: { year: string; gpa: string; credits: number; semesters: number }[];
+		requiredGPA?: number;
+		remainingCredits?: number;
+		name?: string;
+		credits?: number;
+		selectedCount?: number;
+		isPossible?: boolean;
+		message?: string;
+		neededGPA?: string;
+		currentGPA?: string;
+		currentCredits?: number;
+		targetGPA?: string;
+	} | null>(null);
 	const [desiredGPA, setDesiredGPA] = useState<string>("3.5");
 	const [remainingCredits, setRemainingCredits] = useState<string>("30");
 
