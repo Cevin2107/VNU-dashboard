@@ -7,12 +7,14 @@ export default function ConditionalSideBar({
   isSignIn, 
   username,
   studentId,
-  fullName
+  fullName,
+  welcomeEnabled = true
 }: { 
   isSignIn: boolean; 
   username: string;
   studentId: string;
   fullName: string;
+  welcomeEnabled?: boolean;
 }) {
   const pathname = usePathname();
   
@@ -26,5 +28,6 @@ export default function ConditionalSideBar({
     username={username}
     studentId={studentId}
     fullName={fullName}
+    welcomeEnabled={welcomeEnabled}
   />;
 }

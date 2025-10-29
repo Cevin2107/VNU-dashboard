@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import ConditionalSideBar from "./ConditionalSideBar";
 import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
-export default function ClientSideBarWrapper({ children }: { children: React.ReactNode }) {
+export default function ClientSideBarWrapper({ 
+	children,
+	welcomeEnabled = true 
+}: { 
+	children: React.ReactNode;
+	welcomeEnabled?: boolean;
+}) {
 	const [isSignIn, setIsSignIn] = useState(false);
 	const [username, setUsername] = useState("");
 	const [studentId, setStudentId] = useState("");
@@ -62,6 +68,7 @@ export default function ClientSideBarWrapper({ children }: { children: React.Rea
 				username={username}
 				studentId={studentId}
 				fullName={fullName}
+				welcomeEnabled={welcomeEnabled}
 			/>
 			{children}
 		</>

@@ -2,6 +2,7 @@ import "@/app/globals.css";
 
 import { Metadata, Viewport } from "next";
 import ClientLayout from "./components/ClientLayout";
+import { getWelcomeEnabled } from "./settings/actions";
 
 export const metadata: Metadata = {
 	title: {
@@ -37,7 +38,9 @@ export const viewport: Viewport = {
 	],
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+	const welcomeEnabled = await getWelcomeEnabled();
+	
 	return (
 		<html lang="vi">
 			<head>
@@ -50,7 +53,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 				<meta name="format-detection" content="telephone=no" />
 			</head>
 			<body>
-				<ClientLayout>
+				<ClientLayout welcomeEnabled={welcomeEnabled}>
 					{children}
 				</ClientLayout>
 			</body>

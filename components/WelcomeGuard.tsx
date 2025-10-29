@@ -2,7 +2,13 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function WelcomeGuard({ children }: { children: React.ReactNode }) {
+export default function WelcomeGuard({ 
+	children,
+	welcomeEnabled = true 
+}: { 
+	children: React.ReactNode;
+	welcomeEnabled?: boolean;
+}) {
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -23,9 +29,28 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
 
         // Chỉ log cho các trang cần check
         if (pathname === "/welcome" || pathname === "/login" || pathname === "/dashboard") {
-          console.log("WelcomeGuard:", { pathname, isAuthenticated, hasWelcomePassed, hasAuth, hasAccessToken });
+          console.log("WelcomeGuard:", { pathname, isAuthenticated, hasWelcomePassed, hasAuth, hasAccessToken, welcomeEnabled });
         }
 
+        // Nếu tắt welcome page
+        if (!welcomeEnabled) {
+          if (isAuthenticated) {
+            // Đã đăng nhập - cho phép truy cập tất cả trang trừ welcome
+            if (pathname === "/welcome") {
+              router.replace("/dashboard");
+              return;
+            }
+          } else {
+            // Chưa đăng nhập - redirect về login cho TẤT CẢ trang
+            if (pathname !== "/login") {
+              router.replace("/login");
+              return;
+            }
+          }
+          return;
+        }
+
+        // Logic cũ khi bật welcome
         if (isAuthenticated) {
           // Đã đăng nhập - redirect về home nếu đang ở welcome/login
           if (pathname === "/welcome") {
@@ -56,7 +81,7 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
       // Cho các trang đã auth, check nhanh hơn
       checkAuth();
     }
-  }, [pathname, router, isClient]);
+  }, [pathname, router, isClient, welcomeEnabled]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !isClient) return;

@@ -36,6 +36,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import vnuLogo from "@/public/vnu_logo.png";
 import { useRouter } from "next/navigation";
+import WelcomeToggle from "./WelcomeToggle";
 
 const routes = [
 	{ href: "/dashboard", label: "Trang chủ", icon: House },
@@ -48,12 +49,14 @@ export default function SideBar({
 	isSignIn,
 	username,
 	studentId,
-	fullName
+	fullName,
+	welcomeEnabled = true
 }: { 
 	isSignIn: boolean; 
 	username: string;
 	studentId: string;
 	fullName: string;
+	welcomeEnabled?: boolean;
 }) {
 	const pathname = usePathname();
 	const { open, setOpen } = useSidebar();
@@ -83,7 +86,9 @@ export default function SideBar({
 		document.cookie = "remember=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 		
 		window.dispatchEvent(new CustomEvent('authStateChanged'));
-		router.push("/welcome");
+		
+		// Redirect dựa vào setting welcome
+		router.push(welcomeEnabled ? "/welcome" : "/login");
 	};
 
 	return (
@@ -216,7 +221,10 @@ export default function SideBar({
 					
 					<Separator className="bg-white/30 dark:bg-gray-700/50" />
 					
-					<SidebarFooter className="p-3">
+					<SidebarFooter className="p-3 space-y-3">
+						{/* Welcome Toggle Setting */}
+						<WelcomeToggle />
+						
 						{isSignIn && (
 							<Button
 								variant="outline"
