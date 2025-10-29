@@ -65,7 +65,7 @@ export default function WelcomeToggle() {
 			} else {
 				setMessage({ type: "error", text: result.message });
 			}
-		} catch (error) {
+		} catch {
 			setMessage({
 				type: "error",
 				text: "Có lỗi xảy ra. Vui lòng thử lại!",
