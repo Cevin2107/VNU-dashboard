@@ -4,6 +4,10 @@ import { Metadata, Viewport } from "next";
 import ClientLayout from "./components/ClientLayout";
 import { getWelcomeEnabled } from "./settings/actions";
 
+// Force dynamic rendering vì Edge Config fetch là dynamic
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
 	title: {
 		default: "VNU Dashboard",

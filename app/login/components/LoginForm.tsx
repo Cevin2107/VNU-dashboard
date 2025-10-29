@@ -90,6 +90,8 @@ export default function LoginForm() {
 								<BadgeInfo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
 								<AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
 									Đăng nhập bằng tài khoản OneVNU (idp.vnu.edu.vn)
+									<br />
+									Hệ thống không lưu trữ thông tin đăng nhập của bạn.
 								</AlertDescription>
 							</Alert>
 						</div>
