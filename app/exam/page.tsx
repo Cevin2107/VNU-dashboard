@@ -39,27 +39,44 @@ export default async function ExamPage() {
 
 	return (
 		<ProtectedRoute>
-			<div className="w-full mt-2.25 mb-2.25 mr-2">
-				<Card className="gap-3">
-					<CardTitle className="text-xl font-bold px-6">
-						Lịch Thi {`Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`}
-					</CardTitle>
-					<CardContent>
-						{lichThiGroups["upcoming"] && (
-						<>
-							<Label className="mb-0.5">Sắp thi:</Label>
-							<ExamList data={lichThiGroups["upcoming"]} className="m-3"/>
-						</>
-						)}
-						{lichThiGroups["upcoming"] && lichThiGroups["past"] && <Separator />}
-						{lichThiGroups["past"] && (
-						<>
-							<Label className="mt-5 mb-0.5">Đã thi:</Label>
-							<ExamList data={lichThiGroups["past"]} className="m-3"/>
-						</>
-						)}
-					</CardContent>
-				</Card>
+			<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
+				{/* Page Header */}
+				<div className="mb-6">
+					<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+						Lịch Thi �
+					</h1>
+					<p className="text-sm text-gray-600 dark:text-gray-400">
+						{`Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`}
+					</p>
+				</div>
+
+				<div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-xl border border-gray-100 dark:border-gray-700">
+					{lichThiGroups["upcoming"] && (
+					<div className="mb-6">
+						<h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3">
+							<div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-[14px] flex items-center justify-center shadow-lg shadow-green-500/30">
+								<span className="text-white text-lg">📅</span>
+							</div>
+							Sắp thi
+						</h2>
+						<ExamList data={lichThiGroups["upcoming"]} className="space-y-4"/>
+					</div>
+					)}
+					{lichThiGroups["upcoming"] && lichThiGroups["past"] && (
+						<Separator className="my-6 bg-gray-200 dark:bg-gray-700" />
+					)}
+					{lichThiGroups["past"] && (
+					<div>
+						<h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3">
+							<div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-[14px] flex items-center justify-center shadow-lg shadow-gray-500/30">
+								<span className="text-white text-lg">✓</span>
+							</div>
+							Đã thi
+						</h2>
+						<ExamList data={lichThiGroups["past"]} className="space-y-4"/>
+					</div>
+					)}
+				</div>
 			</div>
 		</ProtectedRoute>
 	);

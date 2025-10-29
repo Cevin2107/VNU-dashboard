@@ -47,6 +47,7 @@ export default function LoginForm() {
 			sessionStorage.setItem("refreshToken", response.refreshToken);
 			sessionStorage.setItem("vnu-dashboard-auth", "ok");
 			sessionStorage.setItem("username", username);
+			sessionStorage.setItem("welcome-passed", "ok"); // ✅ Set welcome-passed để không bị redirect về welcome
 
 			// Lưu vào cookies để server-side có thể truy cập
 			document.cookie = `accessToken=${response.accessToken}; path=/; SameSite=Lax`;

@@ -248,6 +248,16 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Smooth transitions for interactive elements */
+button, a, input, select, textarea {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Page content wrapper animation */
+.page-content {
+  animation: fadeIn 0.4s ease-out;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(94% 0.00011 271.152);
@@ -328,86 +338,148 @@
   }
 }
 
-/* Glassmorphism Effects */
+/* Glassmorphism Effects - Modern & Enhanced */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
 .dark .glass {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(30, 30, 30, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.25);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.1);
 }
 
 .dark .glass-card {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(30, 30, 30, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-modern {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+}
+
+.dark .glass-modern {
+  background: rgba(20, 20, 30, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 .glass-input {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .dark .glass-input {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(20, 20, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Beautiful animations inspired by the reference */
-*,
-*::before,
-*::after {
-  transition: none !important;
-  animation: none !important;
-  transform: none !important;
-  will-change: auto !important;
-  transition-property: none !important;
-  transition-duration: 0s !important;
-  animation-duration: 0s !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+/* Beautiful smooth animations - NO ZOOM effects */
+.animate-fadeIn {
+  opacity: 1;
 }
 
-/* Override any animation/transition classes */
-[class*="animate-"],
-[class*="transition-"],
-[class*="duration-"],
-[class*="ease-"],
-[class*="scale-"],
-[class*="zoom-"],
-[class*="slide-"],
-[class*="fade-"] {
-  animation: none !important;
-  transition: none !important;
-  transform: none !important;
+.animate-fadeInUp {
+  opacity: 1;
 }
 
-/* Specifically target data-state animations (used by Radix UI) */
-[data-state="open"],
-[data-state="closed"] {
-  animation: none !important;
-  transform: none !important;
-  opacity: 1 !important;
+.animate-slideInLeft {
+  opacity: 1;
 }
 
-/* Disable backdrop-filter effects that cause visual animation */
-* {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+.animate-slideInRight {
+  opacity: 1;
+}
+
+.animate-scaleIn {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }

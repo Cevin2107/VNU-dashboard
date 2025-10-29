@@ -47,26 +47,39 @@ export default async function GPAPage() {
 	
 	return (
 		<ProtectedRoute>
-			<div className="w-full space-y-4 mr-2 mt-2.25 mb-2.25">
+			<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
+				{/* Page Header */}
+				<div className="mb-6">
+					<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+						Điểm Học Tập 📊
+					</h1>
+					<p className="text-sm text-gray-600 dark:text-gray-400">
+						Chi tiết điểm các học kỳ và tính toán GPA mong muốn
+					</p>
+				</div>
+
 				<DesireGPACal credit={Number.parseInt(tongSoTinChiTichLuy)} gpa={Number.parseFloat(diemTrungBinhHe4TichLuy)}/>
-				<Card>
-					<CardContent>
+
+				<div className="bg-white dark:bg-gray-800 rounded-[24px] overflow-hidden shadow-xl border border-gray-100 dark:border-gray-700">
+					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>
-								<TableRow className="bg-gray-500/40 hover:bg-gray-500/40">
-									<TableHead>Mã học phần</TableHead>
-									<TableHead>Tên môn học</TableHead>
-									<TableHead>Số tín chỉ</TableHead>
-									<TableHead>Điểm hệ 10</TableHead>
-									<TableHead>Điểm hệ 4</TableHead>
-									<TableHead>Điểm hệ chữ</TableHead>
+								<TableRow className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/40 dark:hover:to-indigo-900/40">
+									<TableHead className="font-bold text-sm text-gray-700 dark:text-gray-200">Mã học phần</TableHead>
+									<TableHead className="font-bold text-sm text-gray-700 dark:text-gray-200">Tên môn học</TableHead>
+									<TableHead className="font-bold text-sm text-gray-700 dark:text-gray-200">Số tín chỉ</TableHead>
+									<TableHead className="font-bold text-sm text-gray-700 dark:text-gray-200">Điểm hệ 10</TableHead>
+									<TableHead className="font-bold text-sm text-gray-700 dark:text-gray-200">Điểm hệ 4</TableHead>
+									<TableHead className="font-bold text-sm text-gray-700 dark:text-gray-200">Điểm hệ chữ</TableHead>
 								</TableRow>
 							</TableHeader>
-							{gpaTongKet.map((hocKy) => (
+							{gpaTongKet.map((hocKy, semesterIndex) => (
 								<Fragment key={hocKy.id}>
 									<TableHeader>
-										<TableRow className="bg-gray-500/20 hover:bg-gray-500/20">
-											<TableHead colSpan={6}>{hocKy.tenHocKy}</TableHead>
+										<TableRow className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 hover:from-purple-100 hover:to-pink-100 dark:hover:from-purple-900/40 dark:hover:to-pink-900/40">
+											<TableHead colSpan={6} className="font-bold text-base text-gray-900 dark:text-white py-4">
+												{hocKy.tenHocKy}
+											</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
@@ -77,21 +90,25 @@ export default async function GPAPage() {
 												hocKyId={hocKy.id}
 											/>
 										))}
-										<TableRow className="border-b-0">
-											<TableCell colSpan={3}>Điểm trung bình học kỳ</TableCell>
-											<TableCell>{hocKy.tongket.diemTrungBinhHe10_HocKy}</TableCell>
-											<TableCell colSpan={2}>{hocKy.tongket.diemTrungBinhHe4_HocKy}</TableCell>
+										<TableRow className="border-b-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 font-bold text-sm">
+											<TableCell colSpan={3} className="text-gray-900 dark:text-white">Điểm trung bình học kỳ</TableCell>
+											<TableCell className="text-blue-600 dark:text-blue-400">{hocKy.tongket.diemTrungBinhHe10_HocKy}</TableCell>
+											<TableCell colSpan={2} className="text-blue-600 dark:text-blue-400">{hocKy.tongket.diemTrungBinhHe4_HocKy}</TableCell>
 										</TableRow>
-										<TableRow>
-											<TableCell colSpan={2}>Tổng số tín chỉ tích lũy: {hocKy.tongket.tongSoTinChiTichLuy_HocKy}</TableCell>
-											<TableCell colSpan={4}>Tổng số tín chỉ trượt: {hocKy.tongket.tongSoTinChiTruot_HocKy}</TableCell>
+										<TableRow className={`bg-gray-50 dark:bg-gray-800/50 text-sm ${semesterIndex < gpaTongKet.length - 1 ? 'border-b-4 border-gray-200 dark:border-gray-700' : ''}`}>
+											<TableCell colSpan={2} className="font-semibold text-gray-700 dark:text-gray-300">
+												Tổng số tín chỉ tích lũy: <span className="text-green-600 dark:text-green-400">{hocKy.tongket.tongSoTinChiTichLuy_HocKy}</span>
+											</TableCell>
+											<TableCell colSpan={4} className="font-semibold text-gray-700 dark:text-gray-300">
+												Tổng số tín chỉ trượt: <span className="text-red-600 dark:text-red-400">{hocKy.tongket.tongSoTinChiTruot_HocKy}</span>
+											</TableCell>
 										</TableRow>
 									</TableBody>
 								</Fragment>
 							))}
 						</Table>
-					</CardContent>
-				</Card>
+					</div>
+				</div>
 			</div>
 		</ProtectedRoute>
 	);

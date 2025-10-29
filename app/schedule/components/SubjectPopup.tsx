@@ -13,17 +13,37 @@ export default function SubjectPopup({ subject, children }: { subject: ThoiKhoaB
 				{children}
 			</DialogTrigger>
 			<DialogContent>
-				<DialogTitle className="text-2xl">
+				<DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
 					Thông tin học phần
 				</DialogTitle>
-				<Separator className="bg-gray-300" />
-				<DialogDescription>
-					<p><strong>Tên học phần:</strong> {subject.tenHocPhan}</p>
-					<p><strong>Mã học phần:</strong> {subject.maHocPhan}</p>
-					<p><strong>Nhóm:</strong> {subject.nhom === "0" ? "Cả lớp" : subject.nhom}</p>
-					<p><strong>Giảng viên:</strong> {subject.giangVien1}</p>
-					<p><strong>Thời gian học:</strong> {days[Number.parseInt(subject.ngayTrongTuan) - 1]} {subject.tietBatDau} - {subject.tietKetThuc}</p>
-					<p><strong>Phòng học:</strong> {subject.tenPhong}</p>
+				<Separator className="bg-gray-200 dark:bg-gray-700" />
+				<DialogDescription asChild>
+					<div className="space-y-3 text-sm">
+						<div className="flex flex-col space-y-1">
+							<span className="font-semibold text-gray-600 dark:text-gray-400">Tên học phần:</span>
+							<span className="text-gray-900 dark:text-gray-100">{subject.tenHocPhan}</span>
+						</div>
+						<div className="flex flex-col space-y-1">
+							<span className="font-semibold text-gray-600 dark:text-gray-400">Mã học phần:</span>
+							<span className="text-gray-900 dark:text-gray-100">{subject.maHocPhan}</span>
+						</div>
+						<div className="flex flex-col space-y-1">
+							<span className="font-semibold text-gray-600 dark:text-gray-400">Nhóm:</span>
+							<span className="text-gray-900 dark:text-gray-100">{subject.nhom === "0" ? "Cả lớp" : subject.nhom}</span>
+						</div>
+						<div className="flex flex-col space-y-1">
+							<span className="font-semibold text-gray-600 dark:text-gray-400">Giảng viên:</span>
+							<span className="text-gray-900 dark:text-gray-100">{subject.giangVien1}</span>
+						</div>
+						<div className="flex flex-col space-y-1">
+							<span className="font-semibold text-gray-600 dark:text-gray-400">Thời gian học:</span>
+							<span className="text-gray-900 dark:text-gray-100">{days[Number.parseInt(subject.ngayTrongTuan) - 1]} {subject.tietBatDau} - {subject.tietKetThuc}</span>
+						</div>
+						<div className="flex flex-col space-y-1">
+							<span className="font-semibold text-gray-600 dark:text-gray-400">Phòng học:</span>
+							<span className="text-gray-900 dark:text-gray-100">{subject.tenPhong}</span>
+						</div>
+					</div>
 				</DialogDescription>
 			</DialogContent>
 		</Dialog>

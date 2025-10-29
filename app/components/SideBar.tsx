@@ -11,7 +11,9 @@ import {
 	CalendarCheck2, 
 	CircleUser,
 	LogOut,
-	BadgeX
+	BadgeX,
+	Menu,
+	X
 } from "lucide-react";
 import { 
 	Sidebar, 
@@ -21,7 +23,6 @@ import {
 	SidebarMenu,
 	SidebarMenuItem,
 	SidebarMenuButton,
-	SidebarTrigger,
 	useSidebar
 } from "@/components/ui/sidebar";
 import { 
@@ -46,7 +47,7 @@ const routes = [
 
 export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, username: string }) {
 	const pathname = usePathname();
-	const { isMobile, open } = useSidebar();
+	const { open, setOpen } = useSidebar();
 	const [showAlert, setShowAlert] = useState(false);
 	const router = useRouter();
 
@@ -54,145 +55,167 @@ export default function SideBar({ isSignIn,	username }: { isSignIn: boolean, use
 		if (!isSignIn) {
 			e.preventDefault();
 			setShowAlert(true);
-			setTimeout(() => setShowAlert(false), 3000); // Hide alert after 3 seconds
+			setTimeout(() => setShowAlert(false), 3000);
+		} else {
+			// Close sidebar after clicking a link
+			setOpen(false);
 		}
 	};
 
 	const handleLogout = () => {
-		// Clear sessionStorage
 		sessionStorage.removeItem("accessToken");
 		sessionStorage.removeItem("refreshToken");
 		sessionStorage.removeItem("vnu-dashboard-auth");
 		sessionStorage.removeItem("username");
 		sessionStorage.removeItem("welcome-passed");
 		
-		// Clear cookies
 		document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 		document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 		document.cookie = "remember=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 		
-		// Dispatch custom event to notify other components
 		window.dispatchEvent(new CustomEvent('authStateChanged'));
-		
-		// Redirect to welcome page
 		router.push("/welcome");
 	};
 
 	return (
 		<>
-			{isMobile && <SidebarTrigger className="hover:bg-primary">a</SidebarTrigger>}
+			{/* Hamburger Menu Button - Fixed position */}
+			<button
+				onClick={() => setOpen(!open)}
+				className="fixed top-4 left-4 z-50 p-2 rounded-xl glass-modern hover:shadow-lg transition-all duration-300 group"
+				aria-label="Toggle menu"
+			>
+				{open ? (
+					<X className="w-6 h-6 text-gray-700 dark:text-gray-200 group-hover:rotate-90 transition-transform duration-300" />
+				) : (
+					<Menu className="w-6 h-6 text-gray-700 dark:text-gray-200 group-hover:scale-110 transition-transform duration-300" />
+				)}
+			</button>
+
+			{/* Glassmorphism Backdrop Overlay */}
+			{open && (
+				<div 
+					className="fixed inset-0 z-40 backdrop-blur-md bg-black/20 dark:bg-black/40 transition-all duration-300"
+					onClick={() => setOpen(false)}
+				/>
+			)}
+
 			{showAlert && (
-				<div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-60 w-full max-w-md">
-					<Alert className={cn("border-red-500", isMobile ? "bg-red-300/95" : "bg-red-400/50")}>
-						<AlertDescription className="text-red-800 font-medium flex items-center gap-2">
+				<div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[60] w-full max-w-md px-4">
+					<Alert className="glass-modern border-red-300 dark:border-red-700">
+						<AlertDescription className="text-red-800 dark:text-red-200 font-medium flex items-center gap-2">
 							<BadgeX />
 							Bạn cần đăng nhập để truy cập tính năng này!
 						</AlertDescription>
 					</Alert>
 				</div>
 			)}
-			<Sidebar variant="sidebar" collapsible="icon" className="bg-background border-r border-border/50">
-				<SidebarHeader className="flex items-center justify-center">
-					{open && (
+
+			{/* Sidebar - Overlay Mode */}
+			<div className={cn(
+				"fixed left-0 top-0 h-full z-50 transition-transform duration-300 ease-out",
+				open ? "translate-x-0" : "-translate-x-full"
+			)}>
+				<Sidebar 
+					variant="sidebar" 
+					collapsible="none"
+					className="h-full glass-modern border-r border-white/30 dark:border-gray-700/50 shadow-2xl w-64"
+				>
+					<SidebarHeader className="flex items-center justify-center pt-16 pb-4">
 						<Image
 							src={vnuLogo}
 							alt="VNU Logo"
-							width={480}
-							height={480}
-							className="mb-1.5 w-30 h-30 select-none"
+							width={120}
+							height={120}
+							className="mb-2 select-none"
 							draggable={false}
 						/>
-					)}
-					<SidebarMenu>
-						<SidebarMenuItem>
-							<SidebarMenuButton asChild className="hover:bg-transparent active:bg-transparent">
-								<div className="flex items-center gap-2">
-									<CircleUser size={32} />
-									<span className="text-lg font-semibold">
-										{isSignIn ? username : "Hello!"}
-									</span>
-								</div>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-					</SidebarMenu>
-				</SidebarHeader>
-				<Separator />
-				<SidebarContent className="pl-2 pr-2">
-					<SidebarMenu>
-						{routes.map((route) => (
-							<SidebarMenuItem key={route.href}>
-								<SidebarMenuButton
-									asChild
-									isActive={pathname === route.href}
-									className={cn(
-										"nav-item group relative overflow-hidden rounded-xl transition-all duration-300 ease-out",
-										"hover:bg-gradient-to-r hover:from-primary/20 hover:to-accent/20 hover:shadow-lg hover:shadow-primary/20",
-										"active:scale-95",
-										pathname === route.href && "nav-item active bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/30"
-									)}
-									tooltip={route.label}
-								>
-									<Link 
-										href={route.href}
-										onClick={(e) => handleLinkClick(e)}
-										className="flex items-center gap-3 w-full"
-									>
-										<div className={cn(
-											"flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300",
-											pathname === route.href 
-												? "bg-white/20 text-white" 
-												: "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white group-hover:scale-110"
-										)}>
-											<route.icon size={18} />
-										</div>
-										<span className={cn(
-											"font-medium transition-all duration-300",
-											pathname === route.href && "text-white"
-										)}>
-											{route.label}
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<SidebarMenuButton asChild className="hover:bg-white/20 dark:hover:bg-gray-700/30 active:bg-transparent">
+									<div className="flex items-center gap-3">
+										<CircleUser size={32} className="text-gray-700 dark:text-gray-200" />
+										<span className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+											{isSignIn ? username : "Hello!"}
 										</span>
-									</Link>
+									</div>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
-						))}
-					</SidebarMenu>
-				</SidebarContent>
-				<Separator />
-				<SidebarFooter>
-					{!isMobile && (
-						<div className={cn("flex", open ? "justify-end" : "justify-center")}>
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<SidebarTrigger className="hover:bg-primary" />
-								</TooltipTrigger>
-								<TooltipContent side="right">
-									{open ? "Đóng thanh công cụ" : "Mở thanh công cụ"}
-								</TooltipContent>
-							</Tooltip>
-						</div>
-					)}
-					{isSignIn && (
-						<Button
-							variant="outline"
-							className={cn(
-								"btn-hover w-full border-red-200 text-red-600 hover:bg-red-500 hover:text-white hover:border-red-500",
-								"transition-all duration-300 ease-out shadow-sm hover:shadow-lg hover:shadow-red-500/20",
-								"active:scale-95"
-							)}
-							onClick={handleLogout}
-						>
-							{open ? (
+						</SidebarMenu>
+					</SidebarHeader>
+					
+					<Separator className="bg-white/30 dark:bg-gray-700/50" />
+					
+					<SidebarContent className="px-3 py-4">
+						<SidebarMenu className="space-y-2">
+							{routes.map((route) => (
+								<SidebarMenuItem key={route.href}>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<SidebarMenuButton
+												asChild
+												isActive={pathname === route.href}
+												className={cn(
+													"group relative overflow-hidden rounded-xl transition-all duration-300 ease-out h-12",
+													"hover:bg-white/30 dark:hover:bg-gray-700/30 hover:shadow-lg",
+													pathname === route.href && "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
+												)}
+											>
+												<Link 
+													href={route.href}
+													onClick={(e) => handleLinkClick(e)}
+													className="flex items-center gap-3 w-full px-3"
+												>
+													<div className={cn(
+														"flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-300",
+														pathname === route.href 
+															? "bg-white/20 text-white" 
+															: "bg-blue-500/10 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-500/20 dark:group-hover:bg-blue-400/20"
+													)}>
+														<route.icon size={20} />
+													</div>
+													<span className={cn(
+														"font-medium transition-all duration-300 text-base",
+														pathname === route.href ? "text-white" : "text-gray-800 dark:text-gray-100"
+													)}>
+														{route.label}
+													</span>
+												</Link>
+											</SidebarMenuButton>
+										</TooltipTrigger>
+										<TooltipContent side="right">
+											{route.label}
+										</TooltipContent>
+									</Tooltip>
+								</SidebarMenuItem>
+							))}
+						</SidebarMenu>
+					</SidebarContent>
+					
+					<Separator className="bg-white/30 dark:bg-gray-700/50" />
+					
+					<SidebarFooter className="p-3">
+						{isSignIn && (
+							<Button
+								variant="outline"
+								className={cn(
+									"w-full h-12 rounded-xl font-medium text-base",
+									"border-red-300 dark:border-red-700 text-red-600 dark:text-red-400",
+									"hover:bg-red-500 hover:text-white hover:border-red-500",
+									"transition-all duration-300 ease-out shadow-sm hover:shadow-lg",
+									"glass-input"
+								)}
+								onClick={handleLogout}
+							>
 								<div className="flex items-center gap-2">
-									<LogOut size={16} />
+									<LogOut size={20} />
 									<span>Đăng xuất</span>
 								</div>
-							) : (
-								<LogOut size={16} />
-							)}
-						</Button>
-					)}
-				</SidebarFooter>
-			</Sidebar>
+							</Button>
+						)}
+					</SidebarFooter>
+				</Sidebar>
+			</div>
 		</>
 	);
 }
