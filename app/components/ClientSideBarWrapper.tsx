@@ -5,11 +5,9 @@ import ConditionalSideBar from "./ConditionalSideBar";
 import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
 export default function ClientSideBarWrapper({ 
-	children,
-	welcomeEnabled = true 
+	children
 }: { 
 	children: React.ReactNode;
-	welcomeEnabled?: boolean;
 }) {
 	const [isSignIn, setIsSignIn] = useState(false);
 	const [username, setUsername] = useState("");
@@ -68,7 +66,6 @@ export default function ClientSideBarWrapper({
 				username={username}
 				studentId={studentId}
 				fullName={fullName}
-				welcomeEnabled={welcomeEnabled}
 			/>
 			{children}
 		</>

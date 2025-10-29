@@ -49,14 +49,12 @@ export default function SideBar({
 	isSignIn,
 	username,
 	studentId,
-	fullName,
-	welcomeEnabled = true
+	fullName
 }: { 
 	isSignIn: boolean; 
 	username: string;
 	studentId: string;
 	fullName: string;
-	welcomeEnabled?: boolean;
 }) {
 	const pathname = usePathname();
 	const { open, setOpen } = useSidebar();
@@ -87,8 +85,8 @@ export default function SideBar({
 		
 		window.dispatchEvent(new CustomEvent('authStateChanged'));
 		
-		// Redirect dựa vào setting welcome
-		router.push(welcomeEnabled ? "/welcome" : "/login");
+		// Middleware sẽ xử lý redirect dựa vào Edge Config
+		router.push("/");
 	};
 
 	return (

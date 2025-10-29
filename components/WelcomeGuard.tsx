@@ -3,11 +3,9 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function WelcomeGuard({ 
-	children,
-	welcomeEnabled = true 
+	children
 }: { 
 	children: React.ReactNode;
-	welcomeEnabled?: boolean;
 }) {
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
@@ -29,28 +27,11 @@ export default function WelcomeGuard({
 
         // Chỉ log cho các trang cần check
         if (pathname === "/welcome" || pathname === "/login" || pathname === "/dashboard") {
-          console.log("WelcomeGuard:", { pathname, isAuthenticated, hasWelcomePassed, hasAuth, hasAccessToken, welcomeEnabled });
+          console.log("WelcomeGuard:", { pathname, isAuthenticated, hasWelcomePassed, hasAuth, hasAccessToken });
         }
 
-        // Nếu tắt welcome page
-        if (!welcomeEnabled) {
-          if (isAuthenticated) {
-            // Đã đăng nhập - cho phép truy cập tất cả trang trừ welcome
-            if (pathname === "/welcome") {
-              router.replace("/dashboard");
-              return;
-            }
-          } else {
-            // Chưa đăng nhập - redirect về login cho TẤT CẢ trang
-            if (pathname !== "/login") {
-              router.replace("/login");
-              return;
-            }
-          }
-          return;
-        }
-
-        // Logic cũ khi bật welcome
+        // Welcome redirect logic được xử lý bởi middleware
+        // WelcomeGuard chỉ xử lý client-side auth state
         if (isAuthenticated) {
           // Đã đăng nhập - redirect về home nếu đang ở welcome/login
           if (pathname === "/welcome") {
@@ -81,7 +62,7 @@ export default function WelcomeGuard({
       // Cho các trang đã auth, check nhanh hơn
       checkAuth();
     }
-  }, [pathname, router, isClient, welcomeEnabled]);
+  }, [pathname, router, isClient]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !isClient) return;
