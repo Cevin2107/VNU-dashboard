@@ -158,7 +158,28 @@ graph TD
     I --> B
 ```
 
-## 📦 Dependencies mới
+## � Cách hoạt động
+
+### Development (localhost):
+- ✅ Setting lưu trong file `.settings/app-settings.json`
+- ✅ Có thể toggle qua UI trong sidebar
+- ✅ Áp dụng cho tất cả tabs/browsers trên cùng máy
+
+### Production (Vercel):
+- ⚠️ **File system KHÔNG persistent** trên serverless
+- ✅ Setting đọc từ **Environment Variable**: `WELCOME_ENABLED`
+- ⚠️ **Không thể toggle qua UI** trên production
+- 🔧 **Phải thay đổi thủ công** trên Vercel Dashboard
+
+### Cách thay đổi setting trên Vercel:
+
+1. Vào **Vercel Dashboard** → Project Settings
+2. Chọn tab **Environment Variables**
+3. Thêm/sửa biến: `WELCOME_ENABLED`
+   - Value: `true` (bật welcome) hoặc `false` (tắt welcome)
+4. Save và **Redeploy** project
+
+## �📦 Dependencies mới
 
 ```json
 {
@@ -168,11 +189,25 @@ graph TD
 
 ## 🚀 Deployment
 
-Không cần thay đổi gì khi deploy:
-- ✅ Server actions hoạt động trên Vercel
-- ✅ Cookies được set đúng
-- ✅ No environment variables needed
-- ✅ Backward compatible (default: welcome enabled)
+### Development:
+- ✅ Toggle hoạt động bình thường
+- ✅ File `.settings/app-settings.json` (ignored in git)
+
+### Production (Vercel):
+- ⚠️ Toggle UI sẽ hiện thông báo không thể thay đổi
+- ✅ Cần set environment variable `WELCOME_ENABLED` trên Vercel Dashboard
+- ✅ Giá trị: `true` (default) hoặc `false`
+- 🔄 Sau khi thay đổi env var, cần **redeploy** để áp dụng
+
+### Hướng dẫn set trên Vercel:
+```
+1. Vercel Dashboard → Your Project
+2. Settings → Environment Variables
+3. Add New:
+   - Name: WELCOME_ENABLED
+   - Value: true hoặc false
+4. Deploy → Redeploy
+```
 
 ## 🔧 Customization
 
