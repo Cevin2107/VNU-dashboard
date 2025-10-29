@@ -59,7 +59,7 @@ export default function WelcomeGuard({ children }: { children: React.ReactNode }
   }, [pathname, router]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !isClient) return;
 
     const handleAuthChange = () => {
       console.log("Auth state changed, checking auth...");

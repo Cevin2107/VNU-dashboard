@@ -3,12 +3,6 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { 
-	Card, 
-	CardContent, 
-	CardHeader 
-} from "@/components/ui/card";
 import { useState } from "react";
 
 function calculateRequiredGPA(credit: number, gpa: number, totalCredit: number, targetGPA: number): number {

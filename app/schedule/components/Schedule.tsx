@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
@@ -56,6 +54,7 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 			const currentSemester = sortedSemesters[0];
 			handleSemesterChange(currentSemester.id);
 		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data]);
 
 	function handleCustomPeriodTime() {

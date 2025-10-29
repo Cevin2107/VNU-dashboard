@@ -5,12 +5,10 @@ import Image, { StaticImageData } from "next/image";
 import { donVi, nganhDaoTao } from "@/lib/constants";
 import GPAChart from "./components/GPAChart";
 import SubjectScoreChart from "./components/SubjectScoreChart";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { SubjectScore } from "@/types/SubjectTypes";
 import { useRouter } from "next/navigation";
 import { DatePicker } from "@/components/ui/date-picker";
-import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
+import { ThoiKhoaBieuResponse, TongKetResponse, SinhVienResponse, LopDaoTaoResponse, DiemTrungBinhHocKyResponse, DiemThiHocKyResponse } from "@/types/ResponseTypes";
 
 import HSB from "@/public/hsb.png";
 import HUS from "@/public/hus.png";
@@ -41,14 +39,13 @@ const donViLogo: Record<string, StaticImageData> = {
 }
 
 interface HomeData {
-  tongket: any;
-  gpaTongKet: any[];
-  svInfo: any;
-  classData: any;
+  tongket: TongKetResponse;
+  gpaTongKet: { id: string; tenHocKy: string; tongket: number; tichluy: number }[];
+  svInfo: SinhVienResponse;
+  classData: LopDaoTaoResponse;
   subjectScoreCount: Record<SubjectScore, number>;
-  currentSemesterGPA: any | null;
-  todaySchedule: any[];
-  fullSchedule: ThoiKhoaBieuResponse[]; // Toàn bộ lịch học của kỳ
+  currentSemesterGPA: number | null;
+  fullSchedule: ThoiKhoaBieuResponse[];
 }
 
 export default function HomeContent() {
@@ -56,8 +53,8 @@ export default function HomeContent() {
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date()); // Ngày được chọn
-  const [displaySchedule, setDisplaySchedule] = useState<any[]>([]); // Lịch học hiển thị
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [displaySchedule, setDisplaySchedule] = useState<ThoiKhoaBieuResponse[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,7 +93,7 @@ export default function HomeContent() {
         const recentSemesters = danhSachHocKy.slice(-3);
         
         // Fetch GPA và điểm song song cho các học kỳ gần nhất
-        const semesterDataPromises = recentSemesters.map(async (hocKy) => {
+        const semesterDataPromises = recentSemesters.map(async (hocKy: { id: string; ten: string; nam: string }) => {
           const [tongketHocKy, diemHocKy] = await Promise.all([
             apiHandler.getDiemTrungBinhHocKy(hocKy.id).then(res => res[0]),
             apiHandler.getDiemThiHocKy(hocKy.id)
@@ -106,7 +103,7 @@ export default function HomeContent() {
 
         const semesterResults = await Promise.all(semesterDataPromises);
 
-        const gpaTongKet: any[] = [];
+        const gpaTongKet: { id: string; tenHocKy: string; tongket: number; tichluy: number }[] = [];
         const subjectScoreCount: Record<SubjectScore, number> = {
           [SubjectScore.A_plus]: 0,
           [SubjectScore.A]: 0,
@@ -134,7 +131,6 @@ export default function HomeContent() {
         gpaTongKet.sort((a, b) => Number(a.id) - Number(b.id));
 
         // Lấy thời khóa biểu học kỳ hiện tại và filter lịch hôm nay
-        let todaySchedule: any[] = [];
         let fullSchedule: ThoiKhoaBieuResponse[] = [];
         let currentSemesterIdFromSchedule: string | null = null;
         let currentSemesterGPA = null;
@@ -163,12 +159,6 @@ export default function HomeContent() {
               5: "5", // Thứ 6
               6: "6"  // Thứ 7
             };
-            
-            const todayApiValue = dayToApiMap[today];
-            
-            todaySchedule = thoiKhoaBieu
-              .filter(item => item.ngayTrongTuan === todayApiValue || item.ngayTrongTuan === (today === 0 ? "7" : todayApiValue))
-              .sort((a, b) => Number(a.tietBatDau) - Number(b.tietBatDau));
           }
         } catch (err) {
           console.error("Error fetching schedule:", err);
@@ -201,7 +191,6 @@ export default function HomeContent() {
           gpaTongKet,
           subjectScoreCount,
           currentSemesterGPA,
-          todaySchedule,
           fullSchedule
         });
       } catch (err) {
@@ -209,8 +198,8 @@ export default function HomeContent() {
         setError("Có lỗi xảy ra khi tải dữ liệu");
         setData({
           tongket: { soKyDaHoc: 0, diemTrungBinhHe4TichLuy: "0", tongSoTinChiTichLuy: "0" },
-          svInfo: {},
-          classData: {},
+          svInfo: {} as SinhVienResponse,
+          classData: {} as LopDaoTaoResponse,
           gpaTongKet: [],
           subjectScoreCount: {
             [SubjectScore.A_plus]: 0,
@@ -224,9 +213,8 @@ export default function HomeContent() {
             [SubjectScore.F]: 0
           },
           currentSemesterGPA: null,
-          todaySchedule: [],
           fullSchedule: []
-        } as any);
+        } as HomeData);
       } finally {
         setLoading(false);
       }
@@ -300,7 +288,7 @@ export default function HomeContent() {
     );
   }
 
-  const { tongket, gpaTongKet, svInfo, classData, subjectScoreCount, currentSemesterGPA, todaySchedule } = data;
+  const { tongket, gpaTongKet, svInfo, classData, subjectScoreCount, currentSemesterGPA } = data;
 
   return (
   <div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">

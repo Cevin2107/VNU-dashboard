@@ -1,8 +1,3 @@
-import { 
-	Card, 
-	CardTitle,
-	CardContent
-} from "@/components/ui/card";
 import { LichThiResponse } from "@/types/ResponseTypes";
 
 export default function ExamDetail({ data, className="" }: { data: LichThiResponse, className?: string }) {

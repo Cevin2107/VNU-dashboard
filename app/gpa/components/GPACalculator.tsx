@@ -43,7 +43,7 @@ export default function GPACalculator() {
 			
 			// Fetch GPA for each semester
 			const semestersWithGPA = await Promise.all(
-				danhSachHocKy.map(async (hk: any) => {
+				danhSachHocKy.map(async (hk: { id: string; ten: string; nam: string }) => {
 					try {
 						const gpaData = await apiHandler.getDiemTrungBinhHocKy(hk.id);
 						const diemData = await apiHandler.getDiemThiHocKy(hk.id);
@@ -52,7 +52,7 @@ export default function GPACalculator() {
 							? parseFloat(gpaData[0].diemTrungBinhHe4_HocKy) 
 							: 0;
 						
-						const credits = diemData.reduce((sum: number, d: any) => sum + (parseFloat(d.soTinChi) || 0), 0);
+						const credits = diemData.reduce((sum: number, d: { soTinChi: string }) => sum + (parseFloat(d.soTinChi) || 0), 0);
 						
 						return {
 							id: hk.id,
@@ -82,7 +82,16 @@ export default function GPACalculator() {
 	const calculateGPA = () => {
 		setLoading(true);
 		setTimeout(() => {
-			let calculationResult: any = null;
+			let calculationResult: {
+				type: string;
+				gpa?: string;
+				totalCredits?: number;
+				semesters?: number;
+				details?: unknown[];
+				years?: { year: string; gpa: string; credits: number; semesters: number }[];
+				requiredGPA?: number;
+				remainingCredits?: number;
+			} | null = null;
 
 			switch (mode) {
 				case "cumulative":
@@ -422,7 +431,7 @@ export default function GPACalculator() {
 
 						{result.type === "academic-year" && (
 							<div className="space-y-4">
-								{result.years.map((year: any) => (
+								{result.years?.map((year: { year: string; gpa: string; credits: number; semesters: number }) => (
 									<div key={year.year} className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-[20px] p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700">
 										<div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-purple-400/10 to-pink-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
 										<div className="relative flex items-center justify-between">

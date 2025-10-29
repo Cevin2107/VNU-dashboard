@@ -1,6 +1,6 @@
 import "@/app/globals.css";
 
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import ClientLayout from "./components/ClientLayout";
 
 export const metadata: Metadata = {
@@ -19,21 +19,22 @@ export const metadata: Metadata = {
 		icon: "/vnu_logo.png",
 		apple: "/vnu_logo.png",
 	},
-	viewport: {
-		width: "device-width",
-		initialScale: 1,
-		maximumScale: 5,
-		userScalable: true,
-	},
-	themeColor: [
-		{ media: "(prefers-color-scheme: light)", color: "#ffffff" },
-		{ media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-	],
 	appleWebApp: {
 		capable: true,
 		statusBarStyle: "default",
 		title: "VNU Dashboard",
 	},
+};
+
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+	maximumScale: 5,
+	userScalable: true,
+	themeColor: [
+		{ media: "(prefers-color-scheme: light)", color: "#ffffff" },
+		{ media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+	],
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

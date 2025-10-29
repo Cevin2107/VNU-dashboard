@@ -53,7 +53,7 @@ function SubjectScoreChart({ data }: { data: Record<SubjectScore, number> }) {
 			fill: chartConfig[key as SubjectScore].color
 		}));
 
-	const CustomTooltip = ({ active, payload }: any) => {
+	const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { grade: string }; value: number }[] }) => {
 		if (active && payload && payload.length) {
 			return (
 				<div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-[16px] p-4 shadow-xl border border-gray-200 dark:border-gray-700">
@@ -69,11 +69,11 @@ function SubjectScoreChart({ data }: { data: Record<SubjectScore, number> }) {
 		return null;
 	};
 
-	const CustomLegend = (props: any) => {
+	const CustomLegend = (props: { payload?: { color: string; value: string }[] }) => {
 		const { payload } = props;
 		return (
 			<div className="flex flex-wrap justify-center gap-3 mt-4">
-				{payload.map((entry: any, index: number) => (
+				{payload?.map((entry: { color: string; value: string }, index: number) => (
 					<div key={`legend-${index}`} className="flex items-center gap-2">
 						<div 
 							className="w-3 h-3 rounded-sm shadow-sm" 

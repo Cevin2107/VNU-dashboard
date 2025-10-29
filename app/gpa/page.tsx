@@ -22,8 +22,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GPAPage() {
-	const { diemTrungBinhHe4TichLuy, tongSoTinChiTichLuy, gpaTongKet } = await withAuth(async (apiHandler) => {
-		const { diemTrungBinhHe4TichLuy, tongSoTinChiTichLuy } = (await apiHandler.getTongKetDenHienTai())[0];
+	const { gpaTongKet } = await withAuth(async (apiHandler) => {
 		const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoDiem();
 		const gpaTongKet = [];
 	
@@ -39,8 +38,6 @@ export default async function GPAPage() {
 		}
 		gpaTongKet.sort((a, b) => Number(a.id) - Number(b.id));
 		return { 
-			diemTrungBinhHe4TichLuy, 
-			tongSoTinChiTichLuy, 
 			gpaTongKet 
 		};
 	});

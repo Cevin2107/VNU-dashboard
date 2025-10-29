@@ -3,8 +3,6 @@
 import React from "react";
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { 
-	LineChart, 
-	Line, 
 	XAxis, 
 	YAxis,
 	CartesianGrid,

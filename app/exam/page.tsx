@@ -1,11 +1,5 @@
 import { withAuth } from "@/lib/APIHandler";
-import { 
-	Card, 
-	CardTitle,
-	CardContent
-} from "@/components/ui/card";
 import ExamList from "./components/ExamList";
-import { Label } from "@/components/ui/label";
 import { Metadata } from "next";
 import { Separator } from "@/components/ui/separator";
 import ProtectedRoute from "@/components/ProtectedRoute";
