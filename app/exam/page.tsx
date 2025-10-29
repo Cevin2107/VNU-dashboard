@@ -3,11 +3,15 @@ import ExamList from "./components/ExamList";
 import { Metadata } from "next";
 import { Separator } from "@/components/ui/separator";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import RefreshButton from "../components/RefreshButton";
 
 export const metadata: Metadata = {
 	title: "Lịch thi"
 }
 
+// Force dynamic rendering - no cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function ExamPage() {
 	const { lichThiGroups, hocKy } = await withAuth(async (apiHandler) => {
@@ -36,12 +40,17 @@ export default async function ExamPage() {
 			<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
 				{/* Page Header */}
 				<div className="mb-6">
-					<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-						Lịch Thi �
-					</h1>
-					<p className="text-sm text-gray-600 dark:text-gray-400">
-						{`Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`}
-					</p>
+					<div className="flex items-center justify-between gap-4 flex-wrap">
+						<div>
+							<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+								Lịch Thi 📝
+							</h1>
+							<p className="text-sm text-gray-600 dark:text-gray-400">
+								{`Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`}
+							</p>
+						</div>
+						<RefreshButton />
+					</div>
 				</div>
 
 				<div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-xl border border-gray-100 dark:border-gray-700">

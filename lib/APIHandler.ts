@@ -176,322 +176,228 @@ export class APIHandler {
 		return await getCachedLopDaoTao(this.accessToken, id, guidDonVi, idBacDaoTao, idHeDaoTao, idNganhDaoTao, idNienKhoaDaoTao, idChuongTrinhDaoTao);
 	}
 
-	// Cached version of getTongKetDenHienTai
+	// Realtime version (no cache) of getTongKetDenHienTai
 	async getTongKetDenHienTai(): Promise<TongKetResponse[]> {
-		const getCachedTongKet = unstable_cache(
-			async (token: string) => {
-				const response = await axios.get<TongKetResponse[]>(
-					"/sinhvien/getTongKetDenHienTai",
-					{
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				return response.data;
-			},
-			["user-tongket"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedTongKet(this.accessToken);
+		const response = await axios.get<TongKetResponse[]>(
+			"/sinhvien/getTongKetDenHienTai",
+			{
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		return response.data;
 	}
 
-	// Cached version of getDanhSachHocKyTheoThoiKhoaBieu
+	// Realtime version (no cache) of getDanhSachHocKyTheoThoiKhoaBieu
 	async getDanhSachHocKyTheoThoiKhoaBieu(): Promise<DanhSachHocKyResponse[]> {
-		const getCachedDanhSachTKB = unstable_cache(
-			async (token: string) => {
-				const response = await axios.get<DanhSachHocKyResponse[]>(
-					"/sinhvien/getDanhSachHocKyTheoThoiKhoaBieu",
-					{
-						params: {
-							kieuTruong: "TruongChinh",
-							isTheoChuongTrinhDaoTao: "1",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				fixSummerSem(response.data);
-				return response.data;
-			},
-			["user-danhsach-tkb"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedDanhSachTKB(this.accessToken);
+		const response = await axios.get<DanhSachHocKyResponse[]>(
+			"/sinhvien/getDanhSachHocKyTheoThoiKhoaBieu",
+			{
+				params: {
+					kieuTruong: "TruongChinh",
+					isTheoChuongTrinhDaoTao: "1",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		fixSummerSem(response.data);
+		return response.data;
 	}
 
-	// Cached version of getDanhSachHocKyTheoLichThi
+	// Realtime version (no cache) of getDanhSachHocKyTheoLichThi
 	async getDanhSachHocKyTheoLichThi(): Promise<DanhSachHocKyResponse[]> {
-		const getCachedDanhSachLichThi = unstable_cache(
-			async (token: string) => {
-				const response = await axios.get<DanhSachHocKyResponse[]>(
-					"/sinhvien/getDanhSachHocKyTheoLichThi",
-					{
-						params: {
-							kieuTruong: "TruongChinh",
-							isTheoChuongTrinhDaoTao: "1",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				fixSummerSem(response.data);
-				return response.data;
-			},
-			["user-danhsach-lichthi"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedDanhSachLichThi(this.accessToken);
+		const response = await axios.get<DanhSachHocKyResponse[]>(
+			"/sinhvien/getDanhSachHocKyTheoLichThi",
+			{
+				params: {
+					kieuTruong: "TruongChinh",
+					isTheoChuongTrinhDaoTao: "1",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		fixSummerSem(response.data);
+		return response.data;
 	}
 
+	// Realtime version (no cache) of getDanhSachHocKyTheoDiem
 	async getDanhSachHocKyTheoDiem(): Promise<DanhSachHocKyResponse[]> {
-		const getCachedDanhSachDiem = unstable_cache(
-			async (token: string) => {
-				const response = await axios.get<DanhSachHocKyResponse[]>(
-					"/sinhvien/getDanhSachHocKyTheoDiem",
-					{
-						params: {
-							kieuTruong: "TruongChinh",
-							isTheoChuongTrinhDaoTao: "1",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				fixSummerSem(response.data);
-				return response.data;
-			},
-			["user-danhsach-diem"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedDanhSachDiem(this.accessToken);
+		const response = await axios.get<DanhSachHocKyResponse[]>(
+			"/sinhvien/getDanhSachHocKyTheoDiem",
+			{
+				params: {
+					kieuTruong: "TruongChinh",
+					isTheoChuongTrinhDaoTao: "1",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		fixSummerSem(response.data);
+		return response.data;
 	}
 
-	// Cached version of getThoiKhoaBieuHocKy
+	// Realtime version (no cache) of getThoiKhoaBieuHocKy
 	async getThoiKhoaBieuHocKy(
 		idHocKy: string
 	): Promise<ThoiKhoaBieuResponse[]> {
-		const getCachedThoiKhoaBieu = unstable_cache(
-			async (token: string, hocKyId: string) => {
-				const response = await axios.get<ThoiKhoaBieuResponse[]>(
-					"/sinhvien/getThoiKhoaBieuHocKy",
-					{
-						params: {
-							idHocKy: hocKyId,
-							kieuTruong: "TruongChinh",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				return response.data;
-			},
-			["user-thoikhoabieu"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedThoiKhoaBieu(this.accessToken, idHocKy);
+		const response = await axios.get<ThoiKhoaBieuResponse[]>(
+			"/sinhvien/getThoiKhoaBieuHocKy",
+			{
+				params: {
+					idHocKy: idHocKy,
+					kieuTruong: "TruongChinh",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		return response.data;
 	}
 
+	// Realtime version (no cache) of getLichThiHocKy
 	async getLichThiHocKy(idHocKy: string): Promise<LichThiResponse[]> {
-		const getCachedLichThi = unstable_cache(
-			async (token: string, hocKyId: string) => {
-				const response = await axios.get<LichThiResponse[]>(
-					"/sinhvien/getLichThiHocKy",
-					{
-						params: {
-							idHocKy: hocKyId,
-							kieuTruong: "TruongChinh",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				return response.data;
-			},
-			["user-lichthi"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedLichThi(this.accessToken, idHocKy);
+		const response = await axios.get<LichThiResponse[]>(
+			"/sinhvien/getLichThiHocKy",
+			{
+				params: {
+					idHocKy: idHocKy,
+					kieuTruong: "TruongChinh",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		return response.data;
 	}
 
+	// Realtime version (no cache) of getDiemThiHocKy
 	async getDiemThiHocKy(idHocKy: string): Promise<DiemThiHocKyResponse[]> {
-		const getCachedDiemThi = unstable_cache(
-			async (token: string, hocKyId: string) => {
-				const response = await axios.get<DiemThiHocKyResponse[]>(
-					"/sinhvien/getDiemThiHocKy",
-					{
-						params: {
-							idHocKy: hocKyId,
-							isTheoChuongTrinhDaoTao: "1",
-							kieuTruong: "TruongChinh",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				return response.data;
-			},
-			["user-diemthi"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedDiemThi(this.accessToken, idHocKy);
+		const response = await axios.get<DiemThiHocKyResponse[]>(
+			"/sinhvien/getDiemThiHocKy",
+			{
+				params: {
+					idHocKy: idHocKy,
+					isTheoChuongTrinhDaoTao: "1",
+					kieuTruong: "TruongChinh",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		return response.data;
 	}
 
+	// Realtime version (no cache) of getDiemHocPhanHocKy
 	async getDiemHocPhanHocKy(
 		idHocPhan: string,
 		idHocKy: string
 	): Promise<DiemHocPhanResponse[]> {
-		const getCachedDiemHocPhan = unstable_cache(
-			async (token: string, hocPhanId: string, hocKyId: string) => {
-				const response = await axios.get<DiemHocPhanResponse[]>(
-					"/sinhvien/getDiemHocPhanHocKy",
-					{
-						params: {
-							idHocPhan: hocPhanId,
-							idHocKy: hocKyId,
-							kieuTruong: "TruongChinh",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				return response.data;
-			},
-			["user-diemhocphan"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedDiemHocPhan(this.accessToken, idHocPhan, idHocKy);
+		const response = await axios.get<DiemHocPhanResponse[]>(
+			"/sinhvien/getDiemHocPhanHocKy",
+			{
+				params: {
+					idHocPhan: idHocPhan,
+					idHocKy: idHocKy,
+					kieuTruong: "TruongChinh",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		return response.data;
 	}
 
+	// Realtime version (no cache) of getDiemTrungBinhHocKy
 	async getDiemTrungBinhHocKy(
 		idHocKy: string
 	): Promise<DiemTrungBinhHocKyResponse[]> {
-		const getCachedDiemTrungBinh = unstable_cache(
-			async (token: string, hocKyId: string) => {
-				const response = await axios.get<DiemTrungBinhHocKyResponse[]>(
-					"/sinhvien/getDiemTrungBinhHocKy",
-					{
-						params: {
-							idHocKy: hocKyId,
-							kieuTruong: "TruongChinh",
-						},
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"User-Agent": USERAGENT
-						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
-					}
-				);
-				return response.data;
-			},
-			["user-diemtrungbinh"],
-			{
-				tags: ["user-data"],
-				revalidate: 3600,
-			}
-		);
-
 		if (!this.accessToken) {
 			throw new Error("No access token available");
 		}
 
-		return await getCachedDiemTrungBinh(this.accessToken, idHocKy);
+		const response = await axios.get<DiemTrungBinhHocKyResponse[]>(
+			"/sinhvien/getDiemTrungBinhHocKy",
+			{
+				params: {
+					idHocKy: idHocKy,
+					kieuTruong: "TruongChinh",
+				},
+				headers: {
+					Authorization: `Bearer ${this.accessToken}`,
+					"User-Agent": USERAGENT
+				},
+				baseURL: BASE_URL,
+				httpsAgent: this.agent,
+			}
+		);
+		return response.data;
 	}
 }
 

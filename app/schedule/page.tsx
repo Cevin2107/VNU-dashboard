@@ -2,10 +2,14 @@ import { withAuth } from "@/lib/APIHandler";
 import Schedule from "./components/Schedule";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
+
 export const metadata: Metadata = {
 	title: "Thời khóa biểu"
 };
 
+// Force dynamic rendering - no cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function SchedulePage() {
 	const danhSachHocKy = await withAuth(async (apiHandler) => {

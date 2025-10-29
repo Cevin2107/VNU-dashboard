@@ -28,15 +28,17 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { BadgeQuestionMark } from "lucide-react";
+import { BadgeQuestionMark, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toCalendar } from "@/lib/to_ical";
 import Timetable from "./Timetable";
 import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
 import { defaultPeriodTime, PeriodTime } from "@/lib/constants";
 import { getScheduleFromSemester, saveCustomPeriodTime } from "../actions";
+import { useRouter } from "next/navigation";
 
 export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: { data: { id: string, tenHocKy: string }[], customPeriodTime?: PeriodTime[] }) {
+	const router = useRouter();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [selectedId, setSelectedId] = useState<string>("");
 	const [currentHocKy, setCurrentHocKy] = useState<ThoiKhoaBieuResponse[] | null>(null);
@@ -46,6 +48,7 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 	const [totalWeeks, setTotalWeeks] = useState<number>(1);
 	const [exportError, setExportError] = useState<string | null>(null);
 	const [save, setSave] = useState<CheckedState>(false);
+	const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 	// Auto-load kỳ hiện tại (kỳ có ID cao nhất)
 	useEffect(() => {
@@ -105,6 +108,14 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 		setSelectedId(id);
 	}
 
+	function handleRefresh() {
+		setIsRefreshing(true);
+		router.refresh();
+		setTimeout(() => {
+			setIsRefreshing(false);
+		}, 1000);
+	}
+
 	return (
 		<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
 			{/* Compact Header with Controls */}
@@ -137,6 +148,14 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 					{/* Action Buttons */}
 					{currentHocKy && (
 						<div className="flex flex-wrap items-center gap-2">
+							<Button 
+								onClick={handleRefresh}
+								disabled={isRefreshing}
+								className="rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 px-3 py-2 h-auto"
+							>
+								<RefreshCw className={`w-4 h-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+								{isRefreshing ? 'Đang làm mới...' : 'Làm mới'}
+							</Button>
 							<Dialog>
 								<DialogTrigger asChild>
 									<Button className="rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 px-3 py-2 h-auto">

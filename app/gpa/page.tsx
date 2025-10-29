@@ -12,10 +12,15 @@ import { withAuth } from "@/lib/APIHandler";
 import GPACalculator from "./components/GPACalculator";
 import SubjectRow from "./components/SubjectRow";
 import { Metadata } from "next";
+import RefreshButton from "../components/RefreshButton";
 
 export const metadata: Metadata = {
 	title: "Điểm"
 }
+
+// Force dynamic rendering - no cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function GPAPage() {
 	const { gpaTongKet } = await withAuth(async (apiHandler) => {
@@ -43,12 +48,17 @@ export default async function GPAPage() {
 			<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
 				{/* Page Header */}
 				<div className="mb-6">
-					<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-						Điểm Học Tập 📊
-					</h1>
-					<p className="text-sm text-gray-600 dark:text-gray-400">
-						Chi tiết điểm các học kỳ và tính toán GPA
-					</p>
+					<div className="flex items-center justify-between gap-4 flex-wrap">
+						<div>
+							<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+								Điểm Học Tập 📊
+							</h1>
+							<p className="text-sm text-gray-600 dark:text-gray-400">
+								Chi tiết điểm các học kỳ và tính toán GPA
+							</p>
+						</div>
+						<RefreshButton />
+					</div>
 				</div>
 
 				<GPACalculator />
