@@ -89,10 +89,10 @@ export default function SideBar({
 
 	return (
 		<>
-			{/* Hamburger Menu Button - Fixed position */}
+			{/* Hamburger Menu Button - Fixed position - Touch-friendly */}
 			<button
 				onClick={() => setOpen(!open)}
-				className="fixed top-4 left-4 z-50 p-2 rounded-xl glass-modern hover:shadow-lg transition-all duration-300 group"
+				className="fixed top-4 left-4 z-50 p-3 md:p-2 rounded-xl glass-modern hover:shadow-lg transition-all duration-300 group min-h-[44px] min-w-[44px] flex items-center justify-center"
 				aria-label="Toggle menu"
 			>
 				{open ? (
@@ -152,7 +152,7 @@ export default function SideBar({
 														{studentId || username}
 													</div>
 													<div className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-														{fullName || username}
+														{fullName}
 													</div>
 												</>
 											) : (
