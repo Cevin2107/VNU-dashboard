@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { 
 	BookOpenCheck,
 	GraduationCap, 
@@ -36,7 +36,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import vnuLogo from "@/public/vnu_logo.png";
 import { useRouter } from "next/navigation";
-import WelcomeToggle from "./WelcomeToggle";
 
 const routes = [
 	{ href: "/dashboard", label: "Trang chủ", icon: House },
@@ -61,7 +60,7 @@ export default function SideBar({
 	const [showAlert, setShowAlert] = useState(false);
 	const router = useRouter();
 
-	const handleLinkClick = (e: React.MouseEvent) => {
+	const handleLinkClick = useCallback((e: React.MouseEvent) => {
 		if (!isSignIn) {
 			e.preventDefault();
 			setShowAlert(true);
@@ -70,14 +69,13 @@ export default function SideBar({
 			// Close sidebar after clicking a link
 			setOpen(false);
 		}
-	};
+	}, [isSignIn, setOpen]);
 
-	const handleLogout = () => {
+	const handleLogout = useCallback(() => {
 		sessionStorage.removeItem("accessToken");
 		sessionStorage.removeItem("refreshToken");
 		sessionStorage.removeItem("vnu-dashboard-auth");
 		sessionStorage.removeItem("username");
-		sessionStorage.removeItem("welcome-passed");
 		
 		document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 		document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -87,14 +85,14 @@ export default function SideBar({
 		
 		// Middleware sẽ xử lý redirect dựa vào Edge Config
 		router.push("/");
-	};
+	}, [router]);
 
 	return (
 		<>
 			{/* Hamburger Menu Button - Fixed position - Touch-friendly */}
 			<button
 				onClick={() => setOpen(!open)}
-				className="fixed top-4 left-4 z-50 p-3 md:p-2 rounded-xl glass-modern hover:shadow-lg transition-all duration-300 group min-h-[44px] min-w-[44px] flex items-center justify-center"
+				className="fixed top-4 left-4 z-50 p-3 md:p-2 rounded-xl glass-modern hover:shadow-lg transition-transform duration-200 group min-h-[44px] min-w-[44px] flex items-center justify-center"
 				aria-label="Toggle menu"
 			>
 				{open ? (
@@ -107,7 +105,7 @@ export default function SideBar({
 			{/* Glassmorphism Backdrop Overlay */}
 			{open && (
 				<div 
-					className="fixed inset-0 z-40 backdrop-blur-md bg-black/20 dark:bg-black/40 transition-all duration-300"
+					className="fixed inset-0 z-40 backdrop-blur-sm bg-black/25 dark:bg-black/40 transition-opacity duration-200"
 					onClick={() => setOpen(false)}
 				/>
 			)}
@@ -125,7 +123,7 @@ export default function SideBar({
 
 			{/* Sidebar - Overlay Mode */}
 			<div className={cn(
-				"fixed left-0 top-0 h-full z-50 transition-transform duration-300 ease-out",
+				"fixed left-0 top-0 h-full z-50 transition-transform duration-200 ease-out will-change-transform",
 				open ? "translate-x-0" : "-translate-x-full"
 			)}>
 				<Sidebar 
@@ -220,9 +218,6 @@ export default function SideBar({
 					<Separator className="bg-white/30 dark:bg-gray-700/50" />
 					
 					<SidebarFooter className="p-3 space-y-3">
-						{/* Welcome Toggle Setting */}
-						<WelcomeToggle />
-						
 						{isSignIn && (
 							<Button
 								variant="outline"

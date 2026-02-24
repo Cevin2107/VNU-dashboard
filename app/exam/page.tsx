@@ -1,39 +1,55 @@
-import { withAuth } from "@/lib/APIHandler";
+"use client";
+
 import ExamList from "./components/ExamList";
-import { Metadata } from "next";
 import { Separator } from "@/components/ui/separator";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RefreshButton from "../components/RefreshButton";
+import { LichThiResponse } from "@/types/ResponseTypes";
+import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export const metadata: Metadata = {
-	title: "Lịch thi"
-}
+export default function ExamPage() {
+	const router = useRouter();
+	const [loading, setLoading] = useState(true);
+	const [hasFetchError, setHasFetchError] = useState(false);
+	const [hocKyLabel, setHocKyLabel] = useState("Dữ liệu tạm thời chưa khả dụng");
+	const [lichThiGroups, setLichThiGroups] = useState<Partial<Record<"upcoming" | "past", LichThiResponse[]>>>({});
 
-// Force dynamic rendering - no cache
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+	useEffect(() => {
+		const fetchExamData = async () => {
+			try {
+				const accessToken = sessionStorage.getItem("accessToken");
+				const refreshToken = sessionStorage.getItem("refreshToken");
 
-export default async function ExamPage() {
-	const { lichThiGroups, hocKy } = await withAuth(async (apiHandler) => {
-		const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoLichThi();
-		const hocKy = danhSachHocKy.reduce((prev, curr) => {
-			return curr.id > prev.id ? curr : prev;
-		}, danhSachHocKy[0]);
-		const lichThi = await apiHandler.getLichThiHocKy(hocKy.id);
-		const lichThiGroups = Object.groupBy(lichThi, (item) => {
-			if (item.ngayThi === null) return "upcoming";
+				if (!accessToken) {
+					router.replace("/login");
+					return;
+				}
 
-			const now = new Date();
-			const examDate = new Date(item.ngayThi.split("/").reverse().join("-"));
-			if (examDate < now) return "past";
-			else return "upcoming";
-		});
+				const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
+				const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoLichThi();
+				const hocKy = danhSachHocKy.reduce((prev, curr) => (curr.id > prev.id ? curr : prev), danhSachHocKy[0]);
+				const lichThi = await apiHandler.getLichThiHocKy(hocKy.id);
+				const grouped = Object.groupBy(lichThi, (item) => {
+					if (item.ngayThi === null) return "upcoming";
+					const now = new Date();
+					const examDate = new Date(item.ngayThi.split("/").reverse().join("-"));
+					return examDate < now ? "past" : "upcoming";
+				});
 
-		return {
-			lichThiGroups,
-			hocKy
+				setHocKyLabel(`Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`);
+				setLichThiGroups(grouped);
+				setHasFetchError(false);
+			} catch {
+				setHasFetchError(true);
+			} finally {
+				setLoading(false);
+			}
 		};
-	});
+
+		fetchExamData();
+	}, [router]);
 
 	return (
 		<ProtectedRoute>
@@ -46,12 +62,24 @@ export default async function ExamPage() {
 								Lịch Thi 📝
 							</h1>
 							<p className="text-sm text-gray-600 dark:text-gray-400">
-								{`Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`}
+								{hocKyLabel}
 							</p>
 						</div>
 						<RefreshButton />
 					</div>
 				</div>
+
+				{loading && (
+					<div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-blue-800 dark:border-blue-800/40 dark:bg-blue-900/20 dark:text-blue-200">
+						Đang tải lịch thi...
+					</div>
+				)}
+
+				{hasFetchError && (
+					<div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-200">
+						Không thể tải lịch thi lúc này (API đang lỗi tạm thời). Vui lòng thử lại sau ít phút.
+					</div>
+				)}
 
 				<div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-xl border border-gray-100 dark:border-gray-700">
 					{lichThiGroups["upcoming"] && (

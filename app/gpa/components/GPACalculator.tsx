@@ -99,39 +99,37 @@ export default function GPACalculator() {
 
 	const calculateGPA = () => {
 		setLoading(true);
-		setTimeout(() => {
-			let calculationResult: {
-				type: string;
-				gpa?: string;
-				totalCredits?: number;
-				semesters?: number;
-				details?: unknown[];
-				years?: { year: string; gpa: string; credits: number; semesters: number }[];
-				requiredGPA?: number;
-				remainingCredits?: number;
-			} | null = null;
+		let calculationResult: {
+			type: string;
+			gpa?: string;
+			totalCredits?: number;
+			semesters?: number;
+			details?: unknown[];
+			years?: { year: string; gpa: string; credits: number; semesters: number }[];
+			requiredGPA?: number;
+			remainingCredits?: number;
+		} | null = null;
 
-			switch (mode) {
-				case "cumulative":
-					calculationResult = calculateCumulativeGPA();
-					break;
-				case "current-semester":
-					calculationResult = calculateCurrentSemesterGPA();
-					break;
-				case "academic-year":
-					calculationResult = calculateAcademicYearGPA();
-					break;
-				case "custom-semesters":
-					calculationResult = calculateCustomSemestersGPA();
-					break;
-				case "desired-gpa":
-					calculationResult = calculateDesiredGPA();
-					break;
-			}
+		switch (mode) {
+			case "cumulative":
+				calculationResult = calculateCumulativeGPA();
+				break;
+			case "current-semester":
+				calculationResult = calculateCurrentSemesterGPA();
+				break;
+			case "academic-year":
+				calculationResult = calculateAcademicYearGPA();
+				break;
+			case "custom-semesters":
+				calculationResult = calculateCustomSemestersGPA();
+				break;
+			case "desired-gpa":
+				calculationResult = calculateDesiredGPA();
+				break;
+		}
 
-			setResult(calculationResult);
-			setLoading(false);
-		}, 500);
+		setResult(calculationResult);
+		setLoading(false);
 	};
 
 	const calculateCumulativeGPA = () => {

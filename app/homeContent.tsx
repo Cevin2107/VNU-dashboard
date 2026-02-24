@@ -52,19 +52,52 @@ export default function HomeContent() {
   const router = useRouter();
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [displaySchedule, setDisplaySchedule] = useState<ThoiKhoaBieuResponse[]>([]);
+
+  const getCookieValue = (name: string): string | null => {
+    if (typeof document === "undefined") return null;
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+  };
+
+  const clearAuthState = () => {
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("vnu-dashboard-auth");
+    sessionStorage.removeItem("username");
+    document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "remember=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Lấy tokens từ sessionStorage
-        const accessToken = sessionStorage.getItem("accessToken");
-        const refreshToken = sessionStorage.getItem("refreshToken");
+        let accessToken = sessionStorage.getItem("accessToken");
+        let refreshToken = sessionStorage.getItem("refreshToken");
+
+        // Fallback: đồng bộ từ cookie nếu sessionStorage bị mất sau reload/restart
+        if (!accessToken) {
+          const cookieAccessToken = getCookieValue("accessToken");
+          const cookieRefreshToken = getCookieValue("refreshToken");
+
+          if (cookieAccessToken) {
+            accessToken = cookieAccessToken;
+            refreshToken = cookieRefreshToken;
+            sessionStorage.setItem("accessToken", cookieAccessToken);
+            if (cookieRefreshToken) {
+              sessionStorage.setItem("refreshToken", cookieRefreshToken);
+            }
+            sessionStorage.setItem("vnu-dashboard-auth", "ok");
+          }
+        }
 
         if (!accessToken) {
-          console.log("No access token, but WelcomeGuard should handle this");
+          clearAuthState();
+          setLoading(false);
+          router.replace("/login");
           return;
         }
 
@@ -145,8 +178,8 @@ export default function HomeContent() {
             const thoiKhoaBieu = await apiHandler.getThoiKhoaBieuHocKy(currentSemester.id);
             fullSchedule = thoiKhoaBieu;
           }
-        } catch (err) {
-          console.error("Error fetching schedule:", err);
+        } catch {
+          // Bỏ qua lỗi lịch - không quan trọng
         }
 
         // Lấy GPA của kỳ hiện tại song song (nếu có)
@@ -164,8 +197,8 @@ export default function HomeContent() {
                 }
               }
             }
-          } catch (err) {
-            console.error("Error fetching current semester GPA:", err);
+          } catch {
+            // Bỏ qua lỗi GPA hiện tại - không quan trọng
           }
         }
 
@@ -180,26 +213,11 @@ export default function HomeContent() {
         });
       } catch (err) {
         console.error("Error fetching data:", err);
-        setError("Có lỗi xảy ra khi tải dữ liệu");
-        setData({
-          tongket: { soKyDaHoc: 0, diemTrungBinhHe4TichLuy: "0", tongSoTinChiTichLuy: "0" },
-          svInfo: {} as SinhVienResponse,
-          classData: {} as LopDaoTaoResponse,
-          gpaTongKet: [],
-          subjectScoreCount: {
-            [SubjectScore.A_plus]: 0,
-            [SubjectScore.A]: 0,
-            [SubjectScore.B_plus]: 0,
-            [SubjectScore.B]: 0,
-            [SubjectScore.C_plus]: 0,
-            [SubjectScore.C]: 0,
-            [SubjectScore.D_plus]: 0,
-            [SubjectScore.D]: 0,
-            [SubjectScore.F]: 0
-          },
-          currentSemesterGPA: null,
-          fullSchedule: []
-        } as HomeData);
+        // Token hết hạn hoặc không hợp lệ → quay lại login
+        clearAuthState();
+        setLoading(false);
+        router.replace("/login");
+        return;
       } finally {
         setLoading(false);
       }
@@ -223,16 +241,6 @@ export default function HomeContent() {
       6: "6"  // Thứ 7
     };
 
-    const dayNameMap: Record<number, string> = {
-      0: "Chủ nhật",
-      1: "Thứ 2", 
-      2: "Thứ 3",
-      3: "Thứ 4",
-      4: "Thứ 5",
-      5: "Thứ 6",
-      6: "Thứ 7"
-    };
-
     const selectedDay = selectedDate.getDay();
     const apiDayValue = dayToApiMap[selectedDay];
     
@@ -241,14 +249,15 @@ export default function HomeContent() {
       .sort((a, b) => Number(a.tietBatDau) - Number(b.tietBatDau));
     
     setDisplaySchedule(filtered);
-    console.log("Ngày đã chọn:", selectedDate.toLocaleDateString("vi-VN"), "-", dayNameMap[selectedDay], `(API value: ${apiDayValue})`, "- Số môn:", filtered.length);
   }, [selectedDate, data?.fullSchedule]);
 
-  if (loading) {
-    return <div className="w-full space-y-2 mr-2 mt-2 mb-2"></div>;
-  }
+  useEffect(() => {
+    if (!loading && !data) {
+      router.replace("/login");
+    }
+  }, [loading, data, router]);
 
-  if (loading) {
+  if (loading || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
         <div className="text-center">
@@ -259,24 +268,10 @@ export default function HomeContent() {
     );
   }
 
-  if (error || !data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-3xl p-8 shadow-2xl">
-          <div className="text-center">
-            <div className="text-red-400 text-6xl mb-4">⚠️</div>
-            <h2 className="text-red-700 dark:text-red-300 text-xl font-semibold mb-2">Có lỗi xảy ra</h2>
-            <p className="text-red-600 dark:text-red-400">{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const { tongket, gpaTongKet, svInfo, classData, subjectScoreCount, currentSemesterGPA } = data;
 
   return (
-  <div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
+  <div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20" suppressHydrationWarning>
       
       {/* Student Info Card - Simple & Clean */}
       <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-[24px] p-6 md:p-7 shadow-xl shadow-gray-200/50 dark:shadow-gray-900/50 mb-6 border border-gray-100 dark:border-gray-700">

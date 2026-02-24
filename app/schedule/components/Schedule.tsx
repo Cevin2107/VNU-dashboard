@@ -34,8 +34,9 @@ import { toCalendar } from "@/lib/to_ical";
 import Timetable from "./Timetable";
 import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
 import { defaultPeriodTime, PeriodTime } from "@/lib/constants";
-import { getScheduleFromSemester, saveCustomPeriodTime } from "../actions";
+import { saveCustomPeriodTime } from "../actions";
 import { useRouter } from "next/navigation";
+import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
 export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: { data: { id: string, tenHocKy: string }[], customPeriodTime?: PeriodTime[] }) {
 	const router = useRouter();
@@ -103,9 +104,22 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 	async function handleSemesterChange(id: string) {
 		setLoading(true);
 		setCurrentHocKy(null);
-		setCurrentHocKy(await getScheduleFromSemester(id));
-		setLoading(false);
-		setSelectedId(id);
+		try {
+			const accessToken = sessionStorage.getItem("accessToken");
+			const refreshToken = sessionStorage.getItem("refreshToken");
+
+			if (!accessToken) {
+				router.replace("/login");
+				return;
+			}
+
+			const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
+			const schedule = await apiHandler.getThoiKhoaBieuHocKy(id);
+			setCurrentHocKy(schedule);
+			setSelectedId(id);
+		} finally {
+			setLoading(false);
+		}
 	}
 
 	function handleRefresh() {

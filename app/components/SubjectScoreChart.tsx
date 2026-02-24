@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid, Cell } from "recharts";
 import { SubjectScore } from "@/types/SubjectTypes";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
@@ -126,12 +126,7 @@ function SubjectScoreChart({ data }: { data: Record<SubjectScore, number> }) {
 							animationEasing="ease-out"
 						>
 							{chartData.map((entry, index) => (
-								<Bar 
-									key={`bar-${index}`}
-									dataKey="count"
-									fill={entry.fill}
-									radius={[12, 12, 0, 0]}
-								/>
+								<Cell key={`bar-${index}`} fill={entry.fill} />
 							))}
 						</Bar>
 					</BarChart>

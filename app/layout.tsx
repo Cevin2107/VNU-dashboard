@@ -39,7 +39,7 @@ export const viewport: Viewport = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="vi">
+		<html lang="vi" suppressHydrationWarning>
 			<head>
 				<link rel="manifest" href="/manifest.json" />
 				<link rel="apple-touch-icon" href="/vnu_logo.png" />
@@ -49,7 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 				<meta name="apple-mobile-web-app-title" content="VNU Dashboard" />
 				<meta name="format-detection" content="telephone=no" />
 			</head>
-			<body>
+			<body suppressHydrationWarning>
 				<ClientLayout>
 					{children}
 				</ClientLayout>

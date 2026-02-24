@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { DiemHocPhanResponse, DiemThiHocKyResponse } from "@/types/ResponseTypes";
-import { getSubjectDetails } from "../actions";
 import { Separator } from "@/components/ui/separator";
+import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
 export default function SubjectRow({
 	monHoc,
@@ -36,7 +36,13 @@ export default function SubjectRow({
 
 		setLoading(true);
 		try {
-			const scores = await getSubjectDetails(monHoc.idHocPhan, hocKyId);
+			const accessToken = sessionStorage.getItem("accessToken");
+			const refreshToken = sessionStorage.getItem("refreshToken");
+
+			if (!accessToken) return;
+
+			const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
+			const scores = await apiHandler.getDiemHocPhanHocKy(monHoc.idHocPhan, hocKyId);
 			setSubjectDetails(scores);
 		} catch (error) {
 			console.error("Failed to load subject details:", error);

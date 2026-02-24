@@ -15,10 +15,11 @@ import {
 } from "@/types/ResponseTypes";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { logoutAction } from "@/app/actions";
 
 const BASE_URL = "https://onevnu-mobile-api.vnu.edu.vn/api";
 const USERAGENT = "Dart/3.6 (dart:io)";
+const apiUrl = (path: string) => new URL(path, `${BASE_URL}/`).toString();
+const REQUEST_TIMEOUT = 15000;
 
 function fixSummerSem(danhSachHocKy: DanhSachHocKyResponse[]) {
     danhSachHocKy.forEach((hocKy) => {
@@ -38,7 +39,14 @@ export class APIHandler {
 	accessToken: string | null = null;
 	refreshToken: string | null = null;
 	agent = new https.Agent({
-		rejectUnauthorized: false, // Disable SSL verification
+		rejectUnauthorized: false,
+	});
+	client = axios.create({
+		timeout: REQUEST_TIMEOUT,
+		httpsAgent: this.agent,
+		headers: {
+			"User-Agent": USERAGENT,
+		},
 	});
 
 	constructor(
@@ -50,18 +58,11 @@ export class APIHandler {
 	}
 
 	async signin(username: string, password: string): Promise<SigninResponse> {
-		const response = await axios.post<SigninResponse>(
-			"/auth/signin",
+		const response = await this.client.post<SigninResponse>(
+			apiUrl("/auth/signin"),
 			{
 				username,
 				password,
-			},
-			{
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
-				headers: {
-					"User-Agent": USERAGENT,
-				},
 			}
 		);
 		this.accessToken = response.data.accessToken;
@@ -72,17 +73,10 @@ export class APIHandler {
 
 	async refreshtoken(): Promise<SigninResponse> {
 		if (this.refreshToken) {
-			const response = await axios.post<SigninResponse>(
-				"/auth/refreshtoken",
+			const response = await this.client.post<SigninResponse>(
+				apiUrl("/auth/refreshtoken"),
 				{
 					refreshToken: this.refreshToken,
-				},
-				{
-					baseURL: BASE_URL,
-					httpsAgent: this.agent,
-					headers: {
-						"User-Agent": USERAGENT,
-					},
 				}
 			);
 			this.accessToken = response.data.accessToken;
@@ -97,15 +91,13 @@ export class APIHandler {
 	async getInfoSinhVien(): Promise<SinhVienResponse> {
 		const getCachedInfo = unstable_cache(
 			async (token: string) => {
-				const response = await axios.get<SinhVienResponse>(
-					"/sinhvien",
+				const response = await this.client.get<SinhVienResponse>(
+					apiUrl("/sinhvien"),
 					{
 						headers: {
 							Authorization: `Bearer ${token}`,
 							"User-Agent": USERAGENT
 						},
-						baseURL: BASE_URL,
-						httpsAgent: this.agent,
 					}
 				);
 				return response.data;
@@ -143,7 +135,7 @@ export class APIHandler {
 				_idNienKhoaDaoTao: string,
 				_idChuongTrinhDaoTao: string
 			) => {
-				const response = await axios.get("/sinhvien/getDataLopDaoTao", {
+				const response = await this.client.get(apiUrl("/sinhvien/getDataLopDaoTao"), {
 					params: {
 						id: _id,
 						guidDonVi: _guidDonVi,
@@ -157,8 +149,6 @@ export class APIHandler {
 						Authorization: `Bearer ${token}`,
 						"User-Agent": USERAGENT
 					},
-					baseURL: BASE_URL,
-					httpsAgent: this.agent,
 				});
 				return response.data;
 			},
@@ -182,15 +172,13 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<TongKetResponse[]>(
-			"/sinhvien/getTongKetDenHienTai",
+		const response = await this.client.get<TongKetResponse[]>(
+			apiUrl("/sinhvien/getTongKetDenHienTai"),
 			{
 				headers: {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		return response.data;
@@ -202,8 +190,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<DanhSachHocKyResponse[]>(
-			"/sinhvien/getDanhSachHocKyTheoThoiKhoaBieu",
+		const response = await this.client.get<DanhSachHocKyResponse[]>(
+			apiUrl("/sinhvien/getDanhSachHocKyTheoThoiKhoaBieu"),
 			{
 				params: {
 					kieuTruong: "TruongChinh",
@@ -213,8 +201,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		fixSummerSem(response.data);
@@ -227,8 +213,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<DanhSachHocKyResponse[]>(
-			"/sinhvien/getDanhSachHocKyTheoLichThi",
+		const response = await this.client.get<DanhSachHocKyResponse[]>(
+			apiUrl("/sinhvien/getDanhSachHocKyTheoLichThi"),
 			{
 				params: {
 					kieuTruong: "TruongChinh",
@@ -238,8 +224,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		fixSummerSem(response.data);
@@ -252,8 +236,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<DanhSachHocKyResponse[]>(
-			"/sinhvien/getDanhSachHocKyTheoDiem",
+		const response = await this.client.get<DanhSachHocKyResponse[]>(
+			apiUrl("/sinhvien/getDanhSachHocKyTheoDiem"),
 			{
 				params: {
 					kieuTruong: "TruongChinh",
@@ -263,8 +247,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		fixSummerSem(response.data);
@@ -279,8 +261,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<ThoiKhoaBieuResponse[]>(
-			"/sinhvien/getThoiKhoaBieuHocKy",
+		const response = await this.client.get<ThoiKhoaBieuResponse[]>(
+			apiUrl("/sinhvien/getThoiKhoaBieuHocKy"),
 			{
 				params: {
 					idHocKy: idHocKy,
@@ -290,8 +272,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		return response.data;
@@ -303,8 +283,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<LichThiResponse[]>(
-			"/sinhvien/getLichThiHocKy",
+		const response = await this.client.get<LichThiResponse[]>(
+			apiUrl("/sinhvien/getLichThiHocKy"),
 			{
 				params: {
 					idHocKy: idHocKy,
@@ -314,8 +294,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		return response.data;
@@ -327,8 +305,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<DiemThiHocKyResponse[]>(
-			"/sinhvien/getDiemThiHocKy",
+		const response = await this.client.get<DiemThiHocKyResponse[]>(
+			apiUrl("/sinhvien/getDiemThiHocKy"),
 			{
 				params: {
 					idHocKy: idHocKy,
@@ -339,8 +317,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		return response.data;
@@ -355,8 +331,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<DiemHocPhanResponse[]>(
-			"/sinhvien/getDiemHocPhanHocKy",
+		const response = await this.client.get<DiemHocPhanResponse[]>(
+			apiUrl("/sinhvien/getDiemHocPhanHocKy"),
 			{
 				params: {
 					idHocPhan: idHocPhan,
@@ -367,8 +343,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		return response.data;
@@ -382,8 +356,8 @@ export class APIHandler {
 			throw new Error("No access token available");
 		}
 
-		const response = await axios.get<DiemTrungBinhHocKyResponse[]>(
-			"/sinhvien/getDiemTrungBinhHocKy",
+		const response = await this.client.get<DiemTrungBinhHocKyResponse[]>(
+			apiUrl("/sinhvien/getDiemTrungBinhHocKy"),
 			{
 				params: {
 					idHocKy: idHocKy,
@@ -393,8 +367,6 @@ export class APIHandler {
 					Authorization: `Bearer ${this.accessToken}`,
 					"User-Agent": USERAGENT
 				},
-				baseURL: BASE_URL,
-				httpsAgent: this.agent,
 			}
 		);
 		return response.data;
@@ -405,25 +377,38 @@ export async function withAuth<T>(callback: (apiHandler: APIHandler) => Promise<
 	const cookieStore = await cookies();
 	const accessToken = cookieStore.get("accessToken")?.value;
 	const refreshToken = cookieStore.get("refreshToken")?.value;
-	const remember = cookieStore.get("remember")?.value === "true";
 
 	if (!accessToken) {
-		redirect("/welcome");
+		redirect("/login");
 	}
 	
 	const apiHandler = new APIHandler(accessToken, refreshToken);
 	try {
-		return callback(apiHandler);
+		return await callback(apiHandler);
 	} catch (error) {
-		if (error instanceof AxiosError &&  error.status === 401 && remember) {
-			const {accessToken, refreshToken} = await apiHandler.refreshtoken();
-			cookieStore.set("accessToken", accessToken);
-			cookieStore.set("refreshToken", refreshToken);
-			return callback(apiHandler);
+		const status = error instanceof AxiosError ? error.response?.status : undefined;
+
+		if (status === 401 && refreshToken) {
+			try {
+				const refreshed = await apiHandler.refreshtoken();
+				cookieStore.set("accessToken", refreshed.accessToken);
+				cookieStore.set("refreshToken", refreshed.refreshToken);
+				return await callback(apiHandler);
+			} catch {
+				cookieStore.delete("accessToken");
+				cookieStore.delete("refreshToken");
+				cookieStore.delete("remember");
+				redirect("/login");
+			}
 		}
-		// maybe the refresh token also expired
-		// if cant refresh, logout
-		logoutAction();
+
+		if (status === 401) {
+			cookieStore.delete("accessToken");
+			cookieStore.delete("refreshToken");
+			cookieStore.delete("remember");
+			redirect("/login");
+		}
+
 		throw error;
 	}
 }

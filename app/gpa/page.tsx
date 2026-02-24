@@ -1,3 +1,5 @@
+"use client";
+
 import { 
 	Table, 
 	TableBody, 
@@ -6,42 +8,67 @@ import {
 	TableHeader, 
 	TableRow 
 } from "@/components/ui/table";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { withAuth } from "@/lib/APIHandler";
+import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 import GPACalculator from "./components/GPACalculator";
 import SubjectRow from "./components/SubjectRow";
-import { Metadata } from "next";
 import RefreshButton from "../components/RefreshButton";
+import { DiemThiHocKyResponse, DiemTrungBinhHocKyResponse } from "@/types/ResponseTypes";
+import { useRouter } from "next/navigation";
 
-export const metadata: Metadata = {
-	title: "Điểm"
-}
+export default function GPAPage() {
+	const router = useRouter();
+	const [loading, setLoading] = useState(true);
+	const [hasFetchError, setHasFetchError] = useState(false);
+	const [gpaTongKet, setGpaTongKet] = useState<{
+		id: string;
+		tenHocKy: string;
+		tongket: DiemTrungBinhHocKyResponse;
+		diemHocKy: DiemThiHocKyResponse[];
+	}[]>([]);
 
-// Force dynamic rendering - no cache
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+	useEffect(() => {
+		const fetchGPAData = async () => {
+			try {
+				const accessToken = sessionStorage.getItem("accessToken");
+				const refreshToken = sessionStorage.getItem("refreshToken");
 
-export default async function GPAPage() {
-	const { gpaTongKet } = await withAuth(async (apiHandler) => {
-		const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoDiem();
-		const gpaTongKet = [];
-	
-		for (const hocKy of danhSachHocKy) {
-			const tongket = (await apiHandler.getDiemTrungBinhHocKy(hocKy.id))[0];
-			const diemHocKy = await apiHandler.getDiemThiHocKy(hocKy.id);
-			gpaTongKet.push({
-				id: hocKy.id,
-				tenHocKy: `Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`,
-				tongket,
-				diemHocKy
-			});
-		}
-		gpaTongKet.sort((a, b) => Number(a.id) - Number(b.id));
-		return { 
-			gpaTongKet 
+				if (!accessToken) {
+					router.replace("/login");
+					return;
+				}
+
+				const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
+				const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoDiem();
+				const items = await Promise.all(
+					danhSachHocKy.map(async (hocKy) => {
+						const [tongketRes, diemHocKy] = await Promise.all([
+							apiHandler.getDiemTrungBinhHocKy(hocKy.id),
+							apiHandler.getDiemThiHocKy(hocKy.id),
+						]);
+
+						return {
+							id: hocKy.id,
+							tenHocKy: `Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`,
+							tongket: tongketRes[0],
+							diemHocKy,
+						};
+					})
+				);
+
+				items.sort((a, b) => Number(a.id) - Number(b.id));
+				setGpaTongKet(items);
+				setHasFetchError(false);
+			} catch {
+				setHasFetchError(true);
+			} finally {
+				setLoading(false);
+			}
 		};
-	});
+
+		fetchGPAData();
+	}, [router]);
 	
 	return (
 		<ProtectedRoute>
@@ -62,6 +89,18 @@ export default async function GPAPage() {
 				</div>
 
 				<GPACalculator />
+
+				{loading && (
+					<div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-blue-800 dark:border-blue-800/40 dark:bg-blue-900/20 dark:text-blue-200">
+						Đang tải dữ liệu bảng điểm...
+					</div>
+				)}
+
+				{hasFetchError && (
+					<div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-200">
+						Không thể tải bảng điểm lúc này (API đang lỗi tạm thời). Vui lòng thử lại sau ít phút.
+					</div>
+				)}
 
 				<div className="bg-white dark:bg-gray-800 rounded-[24px] overflow-hidden shadow-xl border border-gray-100 dark:border-gray-700 mt-6">
 					<div className="overflow-x-auto">

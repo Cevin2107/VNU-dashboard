@@ -1,13 +1,8 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/welcome");
-  }, [router]);
-
-  return null;
+export default async function Page() {
+	const cookieStore = await cookies();
+	const accessToken = cookieStore.get("accessToken")?.value;
+	redirect(accessToken ? "/dashboard" : "/login");
 }

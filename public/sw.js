@@ -22,6 +22,16 @@ self.addEventListener('install', (event) => {
 
 // Fetch event
 self.addEventListener('fetch', (event) => {
+  // Skip navigation requests so redirects are handled by the browser/server
+  if (event.request.mode === 'navigate') {
+    return;
+  }
+
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -29,9 +39,9 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
-      }
-    )
+        return fetch(event.request, { redirect: 'follow' });
+      })
+      .catch(() => caches.match('/dashboard'))
   );
 });
 

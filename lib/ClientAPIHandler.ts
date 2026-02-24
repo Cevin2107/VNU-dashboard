@@ -14,6 +14,7 @@ import {
 } from "@/types/ResponseTypes";
 
 const BASE_URL = "https://onevnu-mobile-api.vnu.edu.vn/api";
+const REQUEST_TIMEOUT = 15000;
 
 function fixSummerSem(danhSachHocKy: DanhSachHocKyResponse[]) {
     danhSachHocKy.forEach((hocKy) => {
@@ -54,6 +55,7 @@ export class ClientAPIHandler {
 			{
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		this.accessToken = response.data.accessToken;
@@ -72,6 +74,7 @@ export class ClientAPIHandler {
 				{
 					baseURL: BASE_URL,
 					httpsAgent: this.agent,
+					timeout: REQUEST_TIMEOUT,
 				}
 			);
 			this.accessToken = response.data.accessToken;
@@ -96,6 +99,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		return response.data;
@@ -129,6 +133,7 @@ export class ClientAPIHandler {
 			},
 			baseURL: BASE_URL,
 			httpsAgent: this.agent,
+			timeout: REQUEST_TIMEOUT,
 		});
 		return response.data;
 	}
@@ -146,6 +151,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		return response.data;
@@ -168,6 +174,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		fixSummerSem(response.data);
@@ -191,6 +198,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		fixSummerSem(response.data);
@@ -214,6 +222,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		fixSummerSem(response.data);
@@ -239,6 +248,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		return response.data;
@@ -261,6 +271,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		return response.data;
@@ -284,6 +295,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		return response.data;
@@ -310,6 +322,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		return response.data;
@@ -334,6 +347,7 @@ export class ClientAPIHandler {
 				},
 				baseURL: BASE_URL,
 				httpsAgent: this.agent,
+				timeout: REQUEST_TIMEOUT,
 			}
 		);
 		return response.data;
