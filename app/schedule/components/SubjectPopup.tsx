@@ -5,7 +5,7 @@ import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { Separator } from "@/components/ui/separator";
-import { BookOpen, User, MapPin, Clock, Layers, Sparkles } from "lucide-react";
+import { BookOpen, User, MapPin, Clock, Sparkles } from "lucide-react";
 
 const days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
 

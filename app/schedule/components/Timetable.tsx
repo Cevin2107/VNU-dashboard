@@ -5,7 +5,7 @@ import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
 import SubjectCard from "./SubjectCard";
 import SubjectPopup from "./SubjectPopup";
 import { PeriodTime, getPeriodTime } from "@/lib/constants";
-import { Clock, MapPin, Users, Calendar, Sparkles } from "lucide-react";
+import { Clock, MapPin, Calendar, Sparkles } from "lucide-react";
 
 export interface EventInfo {
 	event: ThoiKhoaBieuResponse;
