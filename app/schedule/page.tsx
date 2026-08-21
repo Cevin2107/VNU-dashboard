@@ -47,8 +47,11 @@ export default function SchedulePage() {
 
 	if (loading) {
 		return (
-			<div className="w-full min-h-screen flex items-center justify-center">
-				<div className="text-sm text-gray-600 dark:text-gray-400">Đang tải danh sách học kỳ...</div>
+			<div className="w-full min-h-screen flex items-center justify-center bg-[#f2f0eb] p-4">
+				<div className="surface-card bg-white rounded-3xl p-8 shadow-xl border border-slate-200/80 max-w-sm w-full text-center flex flex-col items-center gap-3">
+					<div className="w-9 h-9 border-3 border-[#00754A]/30 border-t-[#00754A] rounded-full animate-spin" />
+					<p className="text-xs font-bold text-[#006241]">Đang tải danh sách học kỳ VNU...</p>
+				</div>
 			</div>
 		);
 	}

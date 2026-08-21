@@ -1,6 +1,7 @@
 "use client";
 
 import ExamList from "./components/ExamList";
+import ExamGoogleSync from "./components/ExamGoogleSync";
 import { Separator } from "@/components/ui/separator";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RefreshButton from "../components/RefreshButton";
@@ -8,12 +9,15 @@ import { LichThiResponse } from "@/types/ResponseTypes";
 import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BookOpenCheck, Calendar, CheckCircle2, Clock } from "lucide-react";
 
 export default function ExamPage() {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
 	const [hasFetchError, setHasFetchError] = useState(false);
-	const [hocKyLabel, setHocKyLabel] = useState("Dữ liệu tạm thời chưa khả dụng");
+	const [hocKyLabel, setHocKyLabel] = useState("Đang truy xuất lịch thi...");
+	const [hocKyId, setHocKyId] = useState<string>("");
+	const [allExams, setAllExams] = useState<LichThiResponse[]>([]);
 	const [lichThiGroups, setLichThiGroups] = useState<Partial<Record<"upcoming" | "past", LichThiResponse[]>>>({});
 
 	useEffect(() => {
@@ -29,19 +33,29 @@ export default function ExamPage() {
 
 				const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
 				const danhSachHocKy = await apiHandler.getDanhSachHocKyTheoLichThi();
+				if (!danhSachHocKy || danhSachHocKy.length === 0) {
+					setHocKyLabel("Chưa có lịch thi chính thức");
+					setLoading(false);
+					return;
+				}
+
 				const hocKy = danhSachHocKy.reduce((prev, curr) => (curr.id > prev.id ? curr : prev), danhSachHocKy[0]);
 				const lichThi = await apiHandler.getLichThiHocKy(hocKy.id);
-				const grouped = Object.groupBy(lichThi, (item) => {
+				
+				const grouped = Object.groupBy(lichThi || [], (item) => {
 					if (item.ngayThi === null) return "upcoming";
 					const now = new Date();
 					const examDate = new Date(item.ngayThi.split("/").reverse().join("-"));
 					return examDate < now ? "past" : "upcoming";
 				});
 
+				setHocKyId(hocKy.id);
+				setAllExams(lichThi || []);
 				setHocKyLabel(`Học kỳ ${hocKy.ten} năm học ${hocKy.nam}`);
 				setLichThiGroups(grouped);
 				setHasFetchError(false);
-			} catch {
+			} catch (err) {
+				console.error("Fetch exam schedule error:", err);
 				setHasFetchError(true);
 			} finally {
 				setLoading(false);
@@ -53,61 +67,86 @@ export default function ExamPage() {
 
 	return (
 		<ProtectedRoute>
-			<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
-				{/* Page Header */}
-				<div className="mb-6">
-					<div className="flex items-center justify-between gap-4 flex-wrap">
-						<div>
-							<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-								Lịch Thi 📝
-							</h1>
-							<p className="text-sm text-gray-600 dark:text-gray-400">
-								{hocKyLabel}
-							</p>
+			<div className="w-full min-h-screen px-3 sm:px-6 md:px-8 py-4 sm:py-6 pt-18 sm:pt-20 bg-[#f2f0eb]">
+				
+				{/* Page Header Card */}
+				<div className="surface-card p-4 sm:p-7 mb-4 sm:mb-6 rounded-2xl sm:rounded-3xl border border-slate-200/80">
+					<div className="flex items-start sm:items-center justify-between gap-3.5 sm:gap-4 flex-col sm:flex-row">
+						<div className="flex items-center gap-3 sm:gap-4">
+							<div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#006241] flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
+								<BookOpenCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+							</div>
+							<div>
+								<h1 className="text-lg sm:text-xl md:text-2xl font-black text-[#006241] tracking-tight">
+									Lịch Thi Học Kỳ
+								</h1>
+								<p className="text-[11px] sm:text-xs font-medium text-slate-500">
+									{hocKyLabel}
+								</p>
+							</div>
 						</div>
-						<RefreshButton />
+
+						<div className="flex items-center gap-2 sm:gap-2.5 flex-wrap w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+							{allExams.length > 0 && (
+								<ExamGoogleSync exams={allExams} semesterId={hocKyId} />
+							)}
+							<RefreshButton />
+						</div>
 					</div>
 				</div>
 
 				{loading && (
-					<div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-blue-800 dark:border-blue-800/40 dark:bg-blue-900/20 dark:text-blue-200">
-						Đang tải lịch thi...
+					<div className="surface-card p-8 text-center">
+						<div className="w-9 h-9 border-3 border-[#00754A]/30 border-t-[#00754A] rounded-full animate-spin mx-auto mb-3" />
+						<p className="text-xs font-bold text-slate-500">Đang tải lịch thi chi tiết...</p>
 					</div>
 				)}
 
 				{hasFetchError && (
-					<div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-200">
-						Không thể tải lịch thi lúc này (API đang lỗi tạm thời). Vui lòng thử lại sau ít phút.
+					<div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800 text-xs font-semibold mb-6">
+						Tạm thời chưa kết nối được lịch thi VNU. Vui lòng làm mới trang hoặc thử lại sau.
 					</div>
 				)}
 
-				<div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-xl border border-gray-100 dark:border-gray-700">
-					{lichThiGroups["upcoming"] && (
-					<div className="mb-6">
-						<h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3">
-							<div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-[14px] flex items-center justify-center shadow-lg shadow-green-500/30">
-								<span className="text-white text-lg">📅</span>
+				{!loading && !hasFetchError && (
+					<div className="surface-card p-4 sm:p-7 space-y-5 sm:space-y-7 rounded-2xl sm:rounded-3xl border border-slate-200/80">
+						{lichThiGroups["upcoming"] && lichThiGroups["upcoming"].length > 0 && (
+							<div>
+								<h2 className="text-sm md:text-base font-black text-[#006241] mb-4 flex items-center gap-2.5">
+									<div className="w-8 h-8 bg-[#00754A] rounded-full flex items-center justify-center text-white">
+										<Clock className="w-4 h-4" />
+									</div>
+									Các môn sắp thi
+								</h2>
+								<ExamList data={lichThiGroups["upcoming"]} className="space-y-3"/>
 							</div>
-							Sắp thi
-						</h2>
-						<ExamList data={lichThiGroups["upcoming"]} className="space-y-4"/>
-					</div>
-					)}
-					{lichThiGroups["upcoming"] && lichThiGroups["past"] && (
-						<Separator className="my-6 bg-gray-200 dark:bg-gray-700" />
-					)}
-					{lichThiGroups["past"] && (
-					<div>
-						<h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3">
-							<div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-[14px] flex items-center justify-center shadow-lg shadow-gray-500/30">
-								<span className="text-white text-lg">✓</span>
+						)}
+
+						{lichThiGroups["upcoming"] && lichThiGroups["past"] && (
+							<Separator className="bg-slate-200" />
+						)}
+
+						{lichThiGroups["past"] && lichThiGroups["past"].length > 0 && (
+							<div>
+								<h2 className="text-sm md:text-base font-black text-slate-800 mb-4 flex items-center gap-2.5">
+									<div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600">
+										<CheckCircle2 className="w-4 h-4" />
+									</div>
+									Các môn đã thi xong
+								</h2>
+								<ExamList data={lichThiGroups["past"]} className="space-y-3"/>
 							</div>
-							Đã thi
-						</h2>
-						<ExamList data={lichThiGroups["past"]} className="space-y-4"/>
+						)}
+
+						{(!lichThiGroups["upcoming"] || lichThiGroups["upcoming"].length === 0) && 
+						 (!lichThiGroups["past"] || lichThiGroups["past"].length === 0) && (
+							<div className="text-center py-10">
+								<Calendar className="w-10 h-10 text-slate-400 mx-auto mb-2 opacity-60" />
+								<p className="text-xs font-bold text-slate-600">Chưa có môn thi nào được công bố</p>
+							</div>
+						)}
 					</div>
-					)}
-				</div>
+				)}
 			</div>
 		</ProtectedRoute>
 	);

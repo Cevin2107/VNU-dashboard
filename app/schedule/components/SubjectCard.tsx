@@ -4,10 +4,12 @@ import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
 import { Card, CardContent } from "@/components/ui/card";
 import { EventInfo } from "./Timetable";
 import SubjectPopup from "./SubjectPopup";
-import { PeriodTime, defaultPeriodTime } from "@/lib/constants";
+import { PeriodTime, defaultPeriodTime, getPeriodTime } from "@/lib/constants";
+import { Clock, MapPin, Users } from "lucide-react";
+export { getPeriodTime };
 
 function getEventPosition(event: ThoiKhoaBieuResponse, periodTime: PeriodTime[] = defaultPeriodTime): { top: string; height: string } {
-	const {startTime, endTime} = getPeriodTime(Number.parseInt(event.tietBatDau), Number.parseInt(event.tietKetThuc), periodTime);
+	const { startTime, endTime } = getPeriodTime(Number.parseInt(event.tietBatDau), Number.parseInt(event.tietKetThuc), periodTime);
 
 	const startHour = Number.parseInt(startTime.split(":")[0]);
 	const startMinute = Number.parseInt(startTime.split(":")[1]);
@@ -25,44 +27,39 @@ function getEventPosition(event: ThoiKhoaBieuResponse, periodTime: PeriodTime[] 
 	};
 }
 
-export function getPeriodTime(start: number, end: number, periodTime: PeriodTime[]): { startTime: string; endTime: string } {
-	return {
-		startTime: periodTime[start - 1].start,
-		endTime: periodTime[end - 1].end,
-	}
-}
-
 export default function SubjectCard({ eventInfo, periodTime }: { eventInfo: EventInfo; periodTime: PeriodTime[] }) {
 	const position = getEventPosition(eventInfo.event, periodTime);
 	
-	// Màu sáng, tươi trẻ với gradient nhẹ
+	// Starbucks Inspired Palette Accents
 	const colors = [
-		{ from: "from-blue-500", to: "to-blue-600", border: "border-blue-600", text: "text-blue-50" },
-		{ from: "from-violet-500", to: "to-violet-600", border: "border-violet-600", text: "text-violet-50" },
-		{ from: "from-emerald-500", to: "to-emerald-600", border: "border-emerald-600", text: "text-emerald-50" },
-		{ from: "from-amber-500", to: "to-amber-600", border: "border-amber-600", text: "text-amber-50" },
-		{ from: "from-rose-500", to: "to-rose-600", border: "border-rose-600", text: "text-rose-50" },
-		{ from: "from-cyan-500", to: "to-cyan-600", border: "border-cyan-600", text: "text-cyan-50" },
+		{ bg: "bg-white", border: "border-l-4 border-l-[#006241]", text: "text-[#1E3932]", badge: "bg-[#006241]/10 text-[#006241]" },
+		{ bg: "bg-white", border: "border-l-4 border-l-[#00754A]", text: "text-[#1E3932]", badge: "bg-[#00754A]/10 text-[#00754A]" },
+		{ bg: "bg-white", border: "border-l-4 border-l-[#cba258]", text: "text-[#1E3932]", badge: "bg-[#cba258]/15 text-[#8a6825]" },
+		{ bg: "bg-white", border: "border-l-4 border-l-[#1E3932]", text: "text-[#1E3932]", badge: "bg-[#1E3932]/10 text-[#1E3932]" },
+		{ bg: "bg-white", border: "border-l-4 border-l-[#2b5148]", text: "text-[#1E3932]", badge: "bg-[#2b5148]/10 text-[#2b5148]" },
 	];
+	
 	const colorIndex = eventInfo.event.maHocPhan.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
 	const color = colors[colorIndex];
 	
 	const cardClassName = eventInfo.isOverlapped 
 		? (eventInfo.isSameTime
-			? `absolute bg-gradient-to-br ${color.from} ${color.to} border-l-[3px] ${color.border} shadow-lg z-20 py-0 rounded-lg`
+			? `absolute ${color.bg} ${color.border} shadow-md z-20 rounded-xl transition-all duration-200 hover:z-30 hover:shadow-lg border-y border-r border-slate-200 overflow-hidden`
 			: (eventInfo.isMainOverlap 
-				? `absolute left-1 right-1 bg-gradient-to-br ${color.from} ${color.to} border-l-[3px] ${color.border} shadow-lg z-10 py-0 rounded-lg`
-				: `absolute bg-gradient-to-br ${color.from} ${color.to} border-l-[3px] ${color.border} shadow-lg z-20 py-0 rounded-lg`))
-		: `absolute left-1 right-1 bg-gradient-to-br ${color.from} ${color.to} border-l-[3px] ${color.border} shadow-lg hover:shadow-xl z-10 py-0 rounded-lg transition-all duration-200 hover:scale-[1.02]`;
+				? `absolute left-0.5 right-0.5 ${color.bg} ${color.border} shadow-md z-10 rounded-xl transition-all duration-200 border-y border-r border-slate-200 overflow-hidden`
+				: `absolute ${color.bg} ${color.border} shadow-md z-20 rounded-xl transition-all duration-200 hover:z-30 hover:shadow-lg border-y border-r border-slate-200 overflow-hidden`))
+		: `absolute left-0.5 right-0.5 ${color.bg} ${color.border} shadow-xs z-10 rounded-xl transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:z-30 border-y border-r border-slate-200 overflow-hidden`;
 	
 	const cardStyle = {
 		top: position.top,
 		height: position.height,
-		minHeight: "85px",
-		left: eventInfo.isOverlapped && eventInfo.isSameTime && eventInfo.isMainOverlap ? "50%" : (eventInfo.isOverlapped && eventInfo.isSameTime && !eventInfo.isMainOverlap ? "4px" : undefined),
-		right: eventInfo.isOverlapped && eventInfo.isSameTime && eventInfo.isMainOverlap ? "4px" : (eventInfo.isOverlapped && eventInfo.isSameTime && !eventInfo.isMainOverlap ? "50%" : (eventInfo.isOverlapped && !eventInfo.isSameTime && !eventInfo.isMainOverlap ? "4px" : undefined)),
-		width: eventInfo.isOverlapped && !eventInfo.isSameTime && !eventInfo.isMainOverlap ? "75%" : undefined,
+		minHeight: "68px",
+		left: eventInfo.isOverlapped && eventInfo.isSameTime && eventInfo.isMainOverlap ? "50%" : (eventInfo.isOverlapped && eventInfo.isSameTime && !eventInfo.isMainOverlap ? "2px" : undefined),
+		right: eventInfo.isOverlapped && eventInfo.isSameTime && eventInfo.isMainOverlap ? "2px" : (eventInfo.isOverlapped && eventInfo.isSameTime && !eventInfo.isMainOverlap ? "50%" : (eventInfo.isOverlapped && !eventInfo.isSameTime && !eventInfo.isMainOverlap ? "2px" : undefined)),
+		width: eventInfo.isOverlapped && !eventInfo.isSameTime && !eventInfo.isMainOverlap ? "80%" : undefined,
 	};
+
+	const { startTime, endTime } = getPeriodTime(Number.parseInt(eventInfo.event.tietBatDau), Number.parseInt(eventInfo.event.tietKetThuc), periodTime);
 
 	return (
 		<SubjectPopup subject={eventInfo.event}>
@@ -71,37 +68,35 @@ export default function SubjectCard({ eventInfo, periodTime }: { eventInfo: Even
 				className={cardClassName}
 				style={cardStyle}
 			>
-				<CardContent className="p-2.5 h-full flex flex-col justify-between">
-					<div className="space-y-1">
-						<div className="font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-sm">
-							{eventInfo.event.tenHocPhan}
-						</div>
-						<div className="text-[11px] text-white/90 font-medium">
-							{eventInfo.event.nhom === "0" ? "Lớp chung" : `Nhóm ${eventInfo.event.nhom}`}
-						</div>
-					</div>
-					<div className="space-y-0.5 text-white/95">
-						<div className="flex items-center gap-1.5 text-[11px] font-medium">
-							<svg className="w-3.5 h-3.5 flex-shrink-0 opacity-90" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-							</svg>
-							<span>
-								{(() => {
-									const { startTime, endTime } = getPeriodTime(Number.parseInt(eventInfo.event.tietBatDau), Number.parseInt(eventInfo.event.tietKetThuc), periodTime);
-									return `${startTime} - ${endTime}`;
-								})()}
+				<CardContent className="p-1.5 sm:p-2.5 h-full flex flex-col justify-between cursor-pointer select-none overflow-hidden">
+					<div className="space-y-0.5 min-w-0">
+						<div className="flex items-center justify-between gap-1 flex-wrap">
+							<span className={`px-1.5 py-0.5 rounded-full font-bold text-[9px] whitespace-nowrap ${color.badge}`}>
+								Tiết {eventInfo.event.tietBatDau}-{eventInfo.event.tietKetThuc}
 							</span>
+							{eventInfo.event.nhom !== "0" && (
+								<span className="text-[9px] font-bold text-slate-500 flex items-center gap-0.5 whitespace-nowrap">
+									<Users className="w-2.5 h-2.5 flex-shrink-0" /> N{eventInfo.event.nhom}
+								</span>
+							)}
 						</div>
-						<div className="flex items-center gap-1.5 text-[11px] font-medium">
-							<svg className="w-3.5 h-3.5 flex-shrink-0 opacity-90" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-								<path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-							</svg>
-							<span className="truncate">{eventInfo.event.tenPhong}</span>
+						<h4 className={`font-black text-[10px] sm:text-xs ${color.text} leading-tight line-clamp-2 break-words mt-0.5`}>
+							{eventInfo.event.tenHocPhan}
+						</h4>
+					</div>
+
+					<div className="space-y-0.5 text-slate-600 border-t border-slate-100 pt-1 mt-0.5 min-w-0">
+						<div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold text-slate-500 whitespace-nowrap overflow-hidden">
+							<Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#00754A] flex-shrink-0" />
+							<span className="truncate">{startTime} - {endTime}</span>
+						</div>
+						<div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-slate-900 overflow-hidden">
+							<MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-rose-500 flex-shrink-0" />
+							<span className="truncate">{eventInfo.event.tenPhong || "Chưa có phòng"}</span>
 						</div>
 					</div>
 				</CardContent>
 			</Card>
 		</SubjectPopup>
-	)
+	);
 }

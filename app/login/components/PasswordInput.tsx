@@ -5,14 +5,13 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
-
 interface PasswordInputProps {
 	disabled?: boolean;
 	className?: string;
+	autoFocus?: boolean;
 }
 
-
-export default function PasswordInput({ disabled, className }: PasswordInputProps) {
+export default function PasswordInput({ disabled, className, autoFocus }: PasswordInputProps) {
 	const [showPassword, setShowPassword] = useState(false);
 	return (
 		<div className="relative">
@@ -21,6 +20,7 @@ export default function PasswordInput({ disabled, className }: PasswordInputProp
 				id="password"
 				type={showPassword ? "text" : "password"}
 				required
+				autoFocus={autoFocus}
 				className={`pr-10 ${className ?? ""}`}
 				disabled={disabled}
 			/>

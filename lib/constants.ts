@@ -2882,3 +2882,10 @@ export const defaultPeriodTime: PeriodTime[] = [
 	{ start: "18:10", end: "19:00" },
 	{ start: "19:05", end: "19:55" },
 ];
+
+export function getPeriodTime(start: number, end: number, periodTime: PeriodTime[] = defaultPeriodTime): { startTime: string; endTime: string } {
+	return {
+		startTime: periodTime[start - 1]?.start || "07:00",
+		endTime: periodTime[end - 1]?.end || "11:00",
+	};
+}

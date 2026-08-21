@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ConditionalSideBar from "./ConditionalSideBar";
+import HeaderNav from "./HeaderNav";
 import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
 export default function ClientSideBarWrapper({ 
@@ -20,10 +20,7 @@ export default function ClientSideBarWrapper({
 		const updateAuthState = async () => {
 			const hasAuth = sessionStorage.getItem("vnu-dashboard-auth") === "ok";
 			const storedUsername = sessionStorage.getItem("username") || "";
-			setIsSignIn(hasAuth);
-			setUsername(storedUsername);
-
-			// Fetch student info if logged in
+			
 			if (hasAuth) {
 				try {
 					const accessToken = sessionStorage.getItem("accessToken");
@@ -32,22 +29,34 @@ export default function ClientSideBarWrapper({
 					if (accessToken) {
 						const apiHandler = new ClientAPIHandler(accessToken, refreshToken);
 						const svInfo = await apiHandler.getInfoSinhVien();
-						setStudentId(svInfo.maSinhVien);
-						setFullName(svInfo.hoVaTen);
+						if (svInfo) {
+							setIsSignIn(true);
+							setUsername(storedUsername);
+							setStudentId(svInfo.maSinhVien || storedUsername);
+							setFullName(svInfo.hoVaTen || "");
+							return;
+						}
 					}
 				} catch (error) {
-					console.error("Error fetching student info:", error);
+					console.warn("Session token expired or invalid:", error);
+					sessionStorage.removeItem("accessToken");
+					sessionStorage.removeItem("refreshToken");
+					sessionStorage.removeItem("vnu-dashboard-auth");
+					sessionStorage.removeItem("username");
+					document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+					document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 				}
-			} else {
-				setStudentId("");
-				setFullName("");
 			}
+
+			setIsSignIn(false);
+			setUsername("");
+			setStudentId("");
+			setFullName("");
 		};
 
 		// Initial check
 		updateAuthState();
 
-		// Only listen for authStateChanged, not storage (to avoid conflicts)
 		const handleAuthStateChange = () => {
 			updateAuthState();
 		};
@@ -61,13 +70,15 @@ export default function ClientSideBarWrapper({
 
 	return (
 		<>
-			<ConditionalSideBar 
+			<HeaderNav 
 				isSignIn={isSignIn} 
 				username={username}
 				studentId={studentId}
 				fullName={fullName}
 			/>
-			{children}
+			<main className="w-full min-h-screen">
+				{children}
+			</main>
 		</>
 	);
 }

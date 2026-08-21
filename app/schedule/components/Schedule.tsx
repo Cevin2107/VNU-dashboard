@@ -11,7 +11,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 import { 
 	Dialog, 
 	DialogClose, 
@@ -28,17 +28,18 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { BadgeQuestionMark, RefreshCw } from "lucide-react";
+import { RefreshCw, Calendar, Download, Clock, HelpCircle, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toCalendar } from "@/lib/to_ical";
 import Timetable from "./Timetable";
+import GoogleSyncModal from "./GoogleSyncModal";
 import { ThoiKhoaBieuResponse } from "@/types/ResponseTypes";
 import { defaultPeriodTime, PeriodTime } from "@/lib/constants";
 import { saveCustomPeriodTime } from "../actions";
 import { useRouter } from "next/navigation";
 import { ClientAPIHandler } from "@/lib/ClientAPIHandler";
 
-export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: { data: { id: string, tenHocKy: string }[], customPeriodTime?: PeriodTime[] }) {
+export default function Schedule({ data, customPeriodTime = defaultPeriodTime }: { data: { id: string, tenHocKy: string }[], customPeriodTime?: PeriodTime[] }) {
 	const router = useRouter();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [selectedId, setSelectedId] = useState<string>("");
@@ -46,12 +47,11 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 	const [periodTime, setPeriodTime] = useState<PeriodTime[]>(customPeriodTime);
 	const [exportOpen, setExportOpen] = useState<boolean>(false);
 	const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-	const [totalWeeks, setTotalWeeks] = useState<number>(1);
+	const [totalWeeks, setTotalWeeks] = useState<number>(15);
 	const [exportError, setExportError] = useState<string | null>(null);
 	const [save, setSave] = useState<CheckedState>(false);
 	const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
-	// Auto-load kỳ hiện tại (kỳ có ID cao nhất)
 	useEffect(() => {
 		if (data && data.length > 0 && !selectedId) {
 			const sortedSemesters = [...data].sort((a, b) => Number(b.id) - Number(a.id));
@@ -65,25 +65,23 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 		if (save) {
 			saveCustomPeriodTime(periodTime);
 		}
-		console.log(periodTime)
 	}
 	
 	function handleResetPeriodTime() {
 		const newPeriodTime = defaultPeriodTime.map(period => ({ ...period }));
-		setPeriodTime(newPeriodTime); // Create new objects to force re-render wtf!!!!!!!!!
+		setPeriodTime(newPeriodTime);
 		saveCustomPeriodTime(defaultPeriodTime);
 	}
 
 	function handleExport() {
 		setExportError(null);
 		if (!startDate) {
-			setExportError("Vui lòng chọn ngày bắt đầu và kết thúc học kỳ hợp lệ.");
+			setExportError("Vui lòng chọn ngày bắt đầu học kỳ.");
 			return;
 		}
 		try {
 			const icsContent = toCalendar(currentHocKy!, startDate, totalWeeks, periodTime);
 			
-			// Create blob and download
 			const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
 			const link = document.createElement('a');
 			link.href = URL.createObjectURL(blob);
@@ -94,13 +92,12 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 			document.body.removeChild(link);
 			
 			setExportOpen(false);
-		} catch {
-			setExportError("Đã xảy ra lỗi khi xuất thời khóa biểu. Vui lòng thử lại sau.");
+		} catch (err: unknown) {
+			console.error("Export error:", err);
+			setExportError("Đã xảy ra lỗi khi tạo file lịch .ics");
 		}
 	}
 
-	// if i change id before fetching schedule, timetable will render first
-	// while currentHocKy is null
 	async function handleSemesterChange(id: string) {
 		setLoading(true);
 		setCurrentHocKy(null);
@@ -131,26 +128,25 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 	}
 
 	return (
-		<div className="w-full min-h-screen px-4 md:px-6 py-3 pt-16 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-indigo-950/20">
-			{/* Compact Header with Controls */}
-			<div className="bg-white dark:bg-gray-800 rounded-[20px] p-4 shadow-lg mb-4 border border-gray-100 dark:border-gray-700">
-				<div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-					{/* Title and Semester Select */}
-					<div className="flex items-center gap-4 flex-1 w-full md:w-auto">
-						<div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 flex-shrink-0">
-							<svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-							</svg>
+		<div className="w-full min-h-screen px-3 sm:px-6 md:px-8 py-4 sm:py-6 pt-18 sm:pt-20 bg-[#f2f0eb]">
+			{/* Starbucks Controls Header */}
+			<div className="surface-card p-4 sm:p-6 mb-4 sm:mb-6 rounded-2xl sm:rounded-3xl border border-slate-200/80">
+				<div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5 sm:gap-4">
+					
+					{/* Title & Semester Selector */}
+					<div className="flex items-center gap-3 sm:gap-4 flex-1 w-full md:w-auto">
+						<div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#006241] rounded-2xl flex items-center justify-center text-white font-bold flex-shrink-0 shadow-md">
+							<Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
 						</div>
 						<div className="flex-1 min-w-0">
-							<h1 className="text-xl font-bold text-gray-900 dark:text-white">Thời Khóa Biểu</h1>
+							<h1 className="text-lg sm:text-xl md:text-2xl font-black text-[#006241] tracking-tight">Thời Khóa Biểu</h1>
 							<Select onValueChange={handleSemesterChange} value={selectedId || undefined}>
-								<SelectTrigger className="w-full max-w-xs rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-colors text-sm py-2 mt-1.5 font-medium">
-									<SelectValue placeholder="Chọn học kỳ" />
+								<SelectTrigger className="w-full max-w-sm rounded-full border border-slate-200 bg-white text-xs font-bold py-1.5 sm:py-2 mt-0.5 sm:mt-1 focus:ring-2 focus:ring-[#00754A]">
+									<SelectValue placeholder="Chọn học kỳ..." />
 								</SelectTrigger>
-								<SelectContent>
+								<SelectContent className="rounded-2xl border border-slate-200">
 									{data.map((hocKy) => (
-										<SelectItem key={hocKy.id} value={hocKy.id}>
+										<SelectItem key={hocKy.id} value={hocKy.id} className="text-xs font-bold py-2">
 											{hocKy.tenHocKy}
 										</SelectItem>
 									))}
@@ -159,134 +155,163 @@ export default function Schedule({ data, customPeriodTime = defaultPeriodTime}: 
 						</div>
 					</div>
 
-					{/* Action Buttons */}
+					{/* Action Pill Buttons */}
 					{currentHocKy && (
-						<div className="flex flex-wrap items-center gap-2">
+						<div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
 							<Button 
 								onClick={handleRefresh}
 								disabled={isRefreshing}
-								className="rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 px-3 py-2 h-auto"
+								className="btn-pill text-[11px] sm:text-xs font-bold bg-[#00754A] hover:bg-[#006241] text-white px-3.5 sm:px-4 py-2 h-9 sm:h-10 shadow-xs active:scale-95 flex-1 sm:flex-initial justify-center"
 							>
-								<RefreshCw className={`w-4 h-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-								{isRefreshing ? 'Đang làm mới...' : 'Làm mới'}
+								<RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+								{isRefreshing ? 'Đang tải...' : 'Làm mới'}
 							</Button>
+
+							{/* Google Calendar Direct Sync Modal */}
+							<GoogleSyncModal 
+								schedule={currentHocKy} 
+								semesterId={selectedId} 
+								periodTime={periodTime} 
+							/>
+
+							{/* Custom Period Dialog */}
 							<Dialog>
 								<DialogTrigger asChild>
-									<Button className="rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 px-3 py-2 h-auto">
-										⏰ Thời gian tiết học
+									<Button className="btn-pill text-[11px] sm:text-xs font-bold bg-[#1E3932] hover:bg-slate-900 text-white px-3.5 sm:px-4 py-2 h-9 sm:h-10 shadow-xs active:scale-95 flex-1 sm:flex-initial justify-center">
+										<Clock className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
+										Giờ tiết học
 									</Button>
 								</DialogTrigger>
-								<DialogContent className="max-w-md rounded-[24px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-									<DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-										Đổi thời gian tiết học
+								<DialogContent className="w-[calc(100vw-2rem)] max-w-md rounded-2xl sm:rounded-3xl bg-white border border-slate-200 p-5 sm:p-6">
+									<DialogTitle className="text-sm sm:text-base font-black text-[#006241] flex items-center gap-2">
+										<Clock className="w-4 h-4 text-[#00754A]" /> Đổi Thời Gian Tiết Học
 									</DialogTitle>
-								<Separator className="bg-gray-200 dark:bg-gray-700" />
-								<div className="space-y-3">
-									<div className="grid grid-cols-3 gap-2 font-bold text-xs text-gray-700 dark:text-gray-300">
-										<Label></Label>
-										<Label>Bắt đầu</Label>
-										<Label>Kết thúc</Label>
+									<Separator className="my-2.5 bg-slate-200" />
+									<div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+										<div className="grid grid-cols-3 gap-2 font-bold text-xs text-slate-500">
+											<span>Tiết</span>
+											<span>Bắt đầu</span>
+											<span>Kết thúc</span>
+										</div>
+										{periodTime.map((period, index) => (
+											<div key={index} className="grid grid-cols-3 gap-2 items-center">
+												<Label className="text-xs font-bold text-slate-700">
+													Tiết {index + 1}
+												</Label>
+												<Input
+													type="time"
+													value={period.start}
+													onChange={(e) => {
+														const newPeriodTime = [...periodTime];
+														newPeriodTime[index].start = e.target.value;
+														setPeriodTime(newPeriodTime);
+													}}
+													className="px-2 py-1 text-xs border border-slate-200 rounded-lg"
+												/>
+												<Input
+													type="time"
+													value={period.end}
+													onChange={(e) => {
+														const newPeriodTime = [...periodTime];
+														newPeriodTime[index].end = e.target.value;
+														setPeriodTime(newPeriodTime);
+													}}
+													className="px-2 py-1 text-xs border border-slate-200 rounded-lg"
+												/>
+											</div>
+										))}
 									</div>
-									{periodTime.map((period, index) => (
-										<div key={index} className="grid grid-cols-3 gap-2 items-center">
-											<Label className="text-xs font-medium">
-												Tiết {index + 1}
-											</Label>
-											<Input
-												type="time"
-												value={period.start}
-												onChange={(e) => {
-													const newPeriodTime = [...periodTime];
-													newPeriodTime[index].start = e.target.value;
-													setPeriodTime(newPeriodTime);
-												}}
-												className="px-2 py-1 text-xs glass-input border border-gray-300 dark:border-gray-600 rounded-lg"
-											/>
-											<Input
-												type="time"
-												value={period.end}
-												onChange={(e) => {
-													const newPeriodTime = [...periodTime];
-													newPeriodTime[index].end = e.target.value;
-													setPeriodTime(newPeriodTime);
-												}}
-												className="px-2 py-1 text-xs glass-input border border-gray-300 dark:border-gray-600 rounded-lg"
+									<div className="flex items-center space-x-2 pt-2">
+										<Checkbox checked={save} onCheckedChange={setSave} className="rounded border-slate-300" />
+										<Label className="text-xs font-medium text-slate-600">Lưu cấu hình làm mặc định</Label>
+									</div>
+									<DialogFooter className="gap-2 mt-4 flex-row justify-end">
+										<Button className="btn-pill bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white px-4" onClick={handleResetPeriodTime}>
+											Mặc định
+										</Button>
+										<DialogClose asChild>
+											<Button className="btn-pill text-xs font-bold bg-[#00754A] hover:bg-[#006241] text-white px-4" onClick={handleCustomPeriodTime}>
+												Lưu thay đổi
+											</Button>
+										</DialogClose>
+									</DialogFooter>
+								</DialogContent>
+							</Dialog>
+
+							{/* ICS Calendar Export Popover */}
+							<Popover open={exportOpen} onOpenChange={setExportOpen}>
+								<PopoverTrigger asChild>
+									<Button className="btn-pill text-[11px] sm:text-xs font-bold bg-[#00754A] hover:bg-[#006241] text-white px-3.5 sm:px-4 py-2 h-9 sm:h-10 shadow-xs active:scale-95 flex-1 sm:flex-initial justify-center">
+										<Download className="w-3.5 h-3.5 mr-1.5" />
+										Xuất file .ics
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent className="w-80 p-5 space-y-4 rounded-2xl bg-white border border-slate-200 shadow-xl" align="end">
+									<div className="space-y-1">
+										<h3 className="font-black text-sm text-[#006241] flex items-center gap-1.5">
+											<Sparkles className="w-4 h-4 text-[#00754A]" /> Xuất Lịch Sang Calendar
+										</h3>
+										<p className="text-[11px] text-slate-500">Tạo file `.ics` tương thích Google / Apple Calendar</p>
+									</div>
+									
+									<div className="space-y-3">
+										<div className="space-y-1">
+											<Label className="text-xs font-bold text-slate-700">Ngày bắt đầu học kỳ</Label>
+											<DatePicker date={startDate} setDate={setStartDate} className="text-xs border border-slate-200 rounded-full w-full" />
+										</div>
+										<div className="space-y-1">
+											<Label className="text-xs font-bold text-slate-700">Số tuần học</Label>
+											<Input 
+												type="number" 
+												min={1} 
+												max={30} 
+												value={totalWeeks} 
+												onChange={(e) => setTotalWeeks(Number.parseInt(e.target.value) || 15)} 
+												className="rounded-full text-xs border border-slate-200"
 											/>
 										</div>
-									))}
-								</div>
-								<div className="flex items-center space-x-2">
-									<Checkbox checked={save} onCheckedChange={setSave} className="border border-gray-300 dark:border-gray-600 rounded"/>
-									<Label className="text-xs">Lưu thời gian biểu đã sửa</Label>
-								</div>
-								<DialogFooter className="gap-2">
-									<Button className="bg-red-600 hover:bg-red-700 rounded-[14px] text-sm font-semibold" onClick={handleResetPeriodTime}>
-										Đặt lại mặc định
+									</div>
+
+									{exportError && (
+										<div className="text-rose-600 text-xs bg-rose-50 p-2.5 rounded-lg border border-rose-200 font-medium">
+											{exportError}
+										</div>
+									)}
+
+									<Button onClick={handleExport} className="btn-pill w-full text-xs font-bold bg-[#00754A] hover:bg-[#006241] text-white py-2">
+										Tải File (.ics)
 									</Button>
-									<DialogClose asChild>
-										<Button className="rounded-[14px] text-sm font-semibold bg-blue-600 hover:bg-blue-700" onClick={handleCustomPeriodTime}>
-											Xác nhận
-										</Button>
-									</DialogClose>
-								</DialogFooter>
-							</DialogContent>
-						</Dialog>
-						<Popover open={exportOpen} onOpenChange={setExportOpen}>
-							<PopoverTrigger asChild>
-								<Button className="rounded-lg text-xs font-semibold bg-green-600 hover:bg-green-700 px-3 py-2 h-auto">
-									📤 Xuất lịch
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-full p-4 space-y-4 rounded-[18px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl" align="start">
-								<div className="grid grid-cols-2 gap-4">
-									<div className="space-y-2 w-full">
-										<Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ngày bắt đầu học kì</Label>
-										<DatePicker date={startDate} setDate={setStartDate} className="text-sm border-2 border-gray-200 dark:border-gray-600 hover:border-green-500 dark:hover:border-green-500 w-full justify-between rounded-[14px] text-gray-900 dark:text-gray-100" />
-									</div>
-									<div className="space-y-2 w-full">
-										<Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Số tuần học</Label>
-										<Input type="number" 
-											min={1} max={99} step={1} 
-											value={totalWeeks} 
-											onChange={(e) => { setTotalWeeks(Number.parseInt(e.target.value)) }} 
-											className="rounded-[14px] text-sm border-2 border-gray-200 dark:border-gray-600"
-										/>
-									</div>
-								</div>
-								{exportError && (
-									<div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-[14px] border border-red-200 dark:border-red-800">
-										{exportError}
-									</div>
-								)}
-								<Button onClick={handleExport} className="w-full rounded-[14px] text-sm font-semibold bg-green-600 hover:bg-green-700">Xuất file .ics</Button>
-							</PopoverContent>
-						</Popover>
-						<Tooltip>
-							<TooltipTrigger>
-								<BadgeQuestionMark className="hover:text-blue-600 dark:hover:text-blue-400 w-5 h-5 text-gray-500 dark:text-gray-400"/>
-							</TooltipTrigger>
-							<TooltipContent align="start" side="right" className="rounded-lg text-xs max-w-xs">
-								Xuất file .ics có thể import vào các ứng dụng lịch như Google Calendar, Apple Calendar, Outlook, etc...
-							</TooltipContent>
-						</Tooltip>
-					</div>
+								</PopoverContent>
+							</Popover>
+
+							<Tooltip>
+								<TooltipTrigger>
+									<HelpCircle className="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors ml-1" />
+								</TooltipTrigger>
+								<TooltipContent side="bottom" className="rounded-lg text-xs font-medium max-w-xs">
+									File `.ics` cho phép đồng bộ thời khóa biểu trực tiếp vào Google Calendar, Apple Calendar hoặc Outlook.
+								</TooltipContent>
+							</Tooltip>
+						</div>
 					)}
 				</div>
 			</div>
 
-			{/* Timetable Display Area */}
+			{/* Timetable View */}
 			{loading ? (
-				<div className="flex items-center justify-center h-[calc(100vh-10rem)] bg-white dark:bg-gray-800 rounded-[20px] border border-gray-100 dark:border-gray-700 shadow-lg">
-					<div className="flex flex-col items-center gap-4">
-						<div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
-						<span className="text-base font-semibold text-gray-600 dark:text-gray-400 animate-pulse">Đang tải thời khóa biểu...</span>
-					</div>
+				<div className="flex flex-col items-center justify-center h-[50vh] surface-card p-8">
+					<div className="w-10 h-10 border-3 border-[#00754A]/30 border-t-[#00754A] rounded-full animate-spin mb-3" />
+					<p className="text-xs font-bold text-slate-500 animate-pulse">Đang tải thời khóa biểu...</p>
 				</div>
-			) : currentHocKy ? (
-				<div className="h-[calc(100vh-10rem)] w-full overflow-auto">
-					<Timetable data={currentHocKy!} periodTime={periodTime}/>
+			) : currentHocKy && currentHocKy.length > 0 ? (
+				<Timetable data={currentHocKy} periodTime={periodTime} />
+			) : (
+				<div className="flex flex-col items-center justify-center h-[40vh] surface-card p-6 text-center">
+					<Calendar className="w-10 h-10 text-slate-400 mb-2 opacity-60" />
+					<h3 className="font-bold text-sm text-slate-700">Chưa có thông tin thời khóa biểu</h3>
+					<p className="text-xs text-slate-500 mt-1 max-w-sm">Chọn học kỳ khác hoặc thử làm mới dữ liệu từ cổng thông tin VNU.</p>
 				</div>
-			) : null}
+			)}
 		</div>
 	);
 }
